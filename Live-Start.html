@@ -213,10 +213,29 @@
             box-sizing: border-box;
         }
 
-        .form-group input[type="color"] {
-            padding: 2px;
-            height: 30px;
-            cursor: pointer;
+        /* Umgebaute Farbfelder für direkte Interaktion */
+        .color-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 3px 6px;
+        }
+
+        .color-input-wrapper input {
+            border: none;
+            padding: 3px;
+            background: transparent;
+        }
+
+        .color-preview-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border: 1px solid #555;
+            flex-shrink: 0;
         }
 
         .checkbox-group {
@@ -332,7 +351,10 @@
         </div>
         <div class="form-group" style="flex: 1;">
             <label>Farbe</label>
-            <input type="color" id="input-color-text-rec" value="#ff4757" oninput="updateLive()">
+            <div class="color-input-wrapper">
+                <div class="color-preview-box" id="preview-text-rec"></div>
+                <input type="text" id="input-color-text-rec" value="#ff4757" oninput="updateLive()">
+            </div>
         </div>
     </div>
 
@@ -343,15 +365,24 @@
     <div class="form-row">
         <div class="form-group" style="flex: 1;">
             <label>Farbe Label</label>
-            <input type="color" id="input-color-text-label-fortschritt" value="#1aafeb" oninput="updateLive()">
+            <div class="color-input-wrapper">
+                <div class="color-preview-box" id="preview-label-fortschritt"></div>
+                <input type="text" id="input-color-text-label-fortschritt" value="#1aafeb" oninput="updateLive()">
+            </div>
         </div>
         <div class="form-group" style="flex: 1;">
             <label>Farbe Werte</label>
-            <input type="color" id="input-color-text-werte-fortschritt" value="#ffffff" oninput="updateLive()">
+            <div class="color-input-wrapper">
+                <div class="color-preview-box" id="preview-werte-fortschritt"></div>
+                <input type="text" id="input-color-text-werte-fortschritt" value="#ffffff" oninput="updateLive()">
+            </div>
         </div>
         <div class="form-group" style="flex: 1;">
             <label>Farbe %</label>
-            <input type="color" id="input-color-text-prozent" value="#2ecc71" oninput="updateLive()">
+            <div class="color-input-wrapper">
+                <div class="color-preview-box" id="preview-prozent"></div>
+                <input type="text" id="input-color-text-prozent" value="#2ecc71" oninput="updateLive()">
+            </div>
         </div>
     </div>
 
@@ -389,11 +420,17 @@
     <div class="form-row">
         <div class="form-group" style="flex: 1;">
             <label>Farbe Label</label>
-            <input type="color" id="input-color-text-label-quest" value="#ffffff" oninput="updateLive()">
+            <div class="color-input-wrapper">
+                <div class="color-preview-box" id="preview-label-quest"></div>
+                <input type="text" id="input-color-text-label-quest" value="#ffffff" oninput="updateLive()">
+            </div>
         </div>
         <div class="form-group" style="flex: 1;">
             <label>Farbe Inhalt</label>
-            <input type="color" id="input-color-text-wert-quest" value="#2ecc71" oninput="updateLive()">
+            <div class="color-input-wrapper">
+                <div class="color-preview-box" id="preview-wert-quest"></div>
+                <input type="text" id="input-color-text-wert-quest" value="#2ecc71" oninput="updateLive()">
+            </div>
         </div>
     </div>
 
@@ -404,11 +441,17 @@
     <div class="form-row">
         <div class="form-group" style="flex: 1;">
             <label>Farbe Label</label>
-            <input type="color" id="input-color-text-folge-label" value="#1aafeb" oninput="updateLive()">
+            <div class="color-input-wrapper">
+                <div class="color-preview-box" id="preview-folge-label"></div>
+                <input type="text" id="input-color-text-folge-label" value="#1aafeb" oninput="updateLive()">
+            </div>
         </div>
         <div class="form-group" style="flex: 1;">
             <label>Farbe Wert</label>
-            <input type="color" id="input-color-text-folge-wert" value="#2ecc71" oninput="updateLive()">
+            <div class="color-input-wrapper">
+                <div class="color-preview-box" id="preview-folge-wert"></div>
+                <input type="text" id="input-color-text-folge-wert" value="#2ecc71" oninput="updateLive()">
+            </div>
         </div>
     </div>
 
@@ -429,27 +472,42 @@
     <div class="form-row">
         <div class="form-group" style="flex: 1;">
             <label>Farbe Label</label>
-            <input type="color" id="input-color-text-label-kapitel" value="#1aafeb" oninput="updateLive()">
+            <div class="color-input-wrapper">
+                <div class="color-preview-box" id="preview-label-kapitel"></div>
+                <input type="text" id="input-color-text-label-kapitel" value="#1aafeb" oninput="updateLive()">
+            </div>
         </div>
         <div class="form-group" style="flex: 1;">
             <label>Farbe Inhalt</label>
-            <input type="color" id="input-color-text-wert-kapitel" value="#2ecc71" oninput="updateLive()">
+            <div class="color-input-wrapper">
+                <div class="color-preview-box" id="preview-wert-kapitel"></div>
+                <input type="text" id="input-color-text-wert-kapitel" value="#2ecc71" oninput="updateLive()">
+            </div>
         </div>
     </div>
 
     <div class="panel-section">Ringe (Farbeinstellungen)</div>
     <div class="form-row">
         <div class="form-group" style="flex: 1;">
-            <label>Neon-Glow Basis</label>
-            <input type="color" id="input-color-neon" value="#2ecc71" oninput="updateLive()">
+            <label>Neon Basis</label>
+            <div class="color-input-wrapper">
+                <div class="color-preview-box" id="preview-neon"></div>
+                <input type="text" id="input-color-neon" value="#2ecc71" oninput="updateLive()">
+            </div>
         </div>
         <div class="form-group" style="flex: 1;">
-            <label>Fortschritts-Ring</label>
-            <input type="color" id="input-color-progress" value="#2ecc71" oninput="updateLive()">
+            <label>Progress</label>
+            <div class="color-input-wrapper">
+                <div class="color-preview-box" id="preview-progress"></div>
+                <input type="text" id="input-color-progress" value="#2ecc71" oninput="updateLive()">
+            </div>
         </div>
         <div class="form-group" style="flex: 1;">
-            <label>Timer-Ring</label>
-            <input type="color" id="input-color-timer" value="#ffb300" oninput="updateLive()">
+            <label>Timer</label>
+            <div class="color-input-wrapper">
+                <div class="color-preview-box" id="preview-timer"></div>
+                <input type="text" id="input-color-timer" value="#ffb300" oninput="updateLive()">
+            </div>
         </div>
     </div>
 
@@ -597,6 +655,21 @@
         const cLblKap = document.getElementById('input-color-text-label-kapitel').value;
         const cWrtKap = document.getElementById('input-color-text-wert-kapitel').value;
 
+        // Mini-Vorschau-Boxen im Admin-Panel aktualisieren
+        document.getElementById('preview-text-rec').style.backgroundColor = cRec;
+        document.getElementById('preview-label-fortschritt').style.backgroundColor = cLblFort;
+        document.getElementById('preview-werte-fortschritt').style.backgroundColor = cWrtFort;
+        document.getElementById('preview-prozent').style.backgroundColor = cProz;
+        document.getElementById('preview-label-quest').style.backgroundColor = cLblQst;
+        document.getElementById('preview-wert-quest').style.backgroundColor = cWrtQst;
+        document.getElementById('preview-folge-label').style.backgroundColor = cLblFlg;
+        document.getElementById('preview-folge-wert').style.backgroundColor = cWrtFlg;
+        document.getElementById('preview-label-kapitel').style.backgroundColor = cLblKap;
+        document.getElementById('preview-wert-kapitel').style.backgroundColor = cWrtKap;
+        document.getElementById('preview-neon').style.backgroundColor = colNeon;
+        document.getElementById('preview-progress').style.backgroundColor = colProgress;
+        document.getElementById('preview-timer').style.backgroundColor = colTimer;
+
         // Sichtbarkeiten
         const showRec = document.getElementById('check-show-rec').checked;
         const showKreis = document.getElementById('check-show-kreis').checked;
@@ -608,7 +681,7 @@
 
         const percent = Math.round((stand / ziel) * 100) || 0;
 
-        // CSS Variablen live überschreiben
+        // CSS Variablen live übergeben
         document.documentElement.style.setProperty('--color-progress-bar', colProgress);
         document.documentElement.style.setProperty('--color-timer-bar', colTimer);
         document.documentElement.style.setProperty('--neon-green', colNeon);
@@ -626,10 +699,12 @@
         document.documentElement.style.setProperty('--color-text-wert-kapitel', cWrtKap);
         
         // Glow-Effekt berechnen
-        const r = parseInt(colNeon.substr(1,2), 16);
-        const g = parseInt(colNeon.substr(3,2), 16);
-        const b = parseInt(colNeon.substr(5,2), 16);
-        document.documentElement.style.setProperty('--neon-glow', `rgba(${r}, ${g}, ${b}, 0.8)`);
+        if (colNeon.startsWith('#') && colNeon.length === 7) {
+            const r = parseInt(colNeon.substr(1,2), 16) || 0;
+            const g = parseInt(colNeon.substr(3,2), 16) || 0;
+            const b = parseInt(colNeon.substr(5,2), 16) || 0;
+            document.documentElement.style.setProperty('--neon-glow', `rgba(${r}, ${g}, ${b}, 0.8)`);
+        }
 
         // Sichtbarkeitseinstellungen live anwenden
         document.getElementById('live-rec-container').style.display = showRec ? 'block' : 'none';

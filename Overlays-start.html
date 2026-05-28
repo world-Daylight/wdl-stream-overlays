@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="de" style="--farm-green: #2ecc71; --farm-blue: #1aafeb; --widget-width: 1920px; --widget-height: 1080px; --neon-glow: rgba(46, 204, 113, 0.8);">
-<head>
+<html lang="de" style="--farm-green: #2ecc71; --farm-blue: #1aafeb; --widget-width: 1920px; --widget-height: 1080px; --neon-glow: rgba(46, 204, 113, 0.8); --color-rec: #ff4757; --color-episode: #ffffff; --color-ep-number: #2ecc71; --color-kapitel-label: #1aafeb; --color-kapitel-name: #2ecc71; --color-label-folge: #ffffff; --color-wert-folge: #ffffff; --color-label-timer: #ffffff; --color-wert-timer: #1aafeb; --color-quest-label: #1aafeb; --color-quest-name: #2ecc71; --color-game: #ffffff; --color-fortschritt: #ffffff;"><head>
     <meta charset="UTF-8">
     <title>Overlays-start - Live Overlay &amp; Control Panel</title>
     <style>
@@ -187,11 +186,9 @@
             display: none;
         }
 
-        @media (pointer: fine), (pointer: coarse) {
-            body:hover #admin-panel, 
-            #admin-panel:focus-within {
-                display: block;
-            }
+        body:hover #admin-panel, 
+        #admin-panel:focus-within {
+            display: block;
         }
 
         #admin-panel h3 {
@@ -236,10 +233,34 @@
             box-sizing: border-box;
         }
 
-        .form-group input[type="color"] {
-            padding: 2px;
-            height: 30px;
+        /* CUSTOM COLOR PICKER SYSTEM WITHOUT WINDOWS POPUP */
+        .custom-color-box {
+            width: 100%;
+            height: 28px;
+            border-radius: 4px;
+            border: 1px solid #555;
             cursor: pointer;
+            position: relative;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px #000;
+            color: #fff;
+        }
+
+        .color-picker-label {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            font-size: 0.7rem;
+            color: #ccc;
+            text-align: center;
+            flex: 1;
+            gap: 3px;
         }
 
         /* Checkbox Styling */
@@ -275,22 +296,6 @@
         .form-row {
             display: flex;
             gap: 10px;
-        }
-
-        .color-picker-label {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            color: #ccc;
-            text-align: center;
-            flex: 1;
-        }
-
-        .color-picker-label input[type="color"] {
-            height: 25px;
-            margin-top: 3px;
         }
 
         .btn-copy {
@@ -381,7 +386,7 @@
     <div class="panel-section">Inhalte &amp; Kreis-Labels</div>
     <div class="form-group">
         <label>Spiel-Titel</label>
-        <input type="text" id="input-game" value="FARMER'S DYNASTY 2" oninput="updateLive()">
+        <input type="text" id="input-game" value="Spiel-Name" oninput="updateLive()">
     </div>
     <div class="form-row">
         <div class="form-group" style="flex: 1;">
@@ -396,7 +401,7 @@
     <div class="form-row">
         <div class="form-group" style="flex: 1;">
             <label>Aktuelle Folge</label>
-            <input type="number" id="input-folge" value="20" oninput="updateLive()">
+            <input type="number" id="input-folge" value="1" oninput="updateLive()">
         </div>
         <div class="form-group" style="flex: 1;">
             <label>Gesamt-Ziel (Folgen)</label>
@@ -419,7 +424,7 @@
         </div>
         <div class="form-group" style="flex: 2;">
             <label>Aktuelle Quest</label>
-            <input type="text" id="input-quest" value="Der Gutsherr Alle Hofgebäuden Reparieren" oninput="updateLive()">
+            <input type="text" id="input-quest" value="Quest Name" oninput="updateLive()">
         </div>
     </div>
     <div class="form-row">
@@ -429,36 +434,36 @@
         </div>
         <div class="form-group" style="flex: 1;">
             <label>Kapitel Nr.</label>
-            <input type="text" id="input-kapitel-nr" value="5" oninput="updateLive()">
+            <input type="text" id="input-kapitel-nr" value="1" oninput="updateLive()">
         </div>
         <div class="form-group" style="flex: 2;">
             <label>Kapitel Name</label>
-            <input type="text" id="input-kapitel-name" value="Vegetarier" oninput="updateLive()">
+            <input type="text" id="input-kapitel-name" value="Kapitel Name" oninput="updateLive()">
         </div>
     </div>
 
     <div class="panel-section">Exakte Text-Farben festlegen</div>
     <div style="background: #111; padding: 10px; border-radius: 6px;">
         <div class="form-row" style="margin-bottom: 8px;">
-            <div class="color-picker-label">🔴 REC<input type="color" id="color-picker-rec" value="#ff4757" oninput="updateLive()"></div>
-            <div class="color-picker-label">EPISODE Text<input type="color" id="color-picker-episode" value="#ffffff" oninput="updateLive()"></div>
-            <div class="color-picker-label">Folgen-Nr (Oben)<input type="color" id="color-picker-ep-number" value="#2ecc71" oninput="updateLive()"></div>
+            <div class="color-picker-label">🔴 REC<div class="custom-color-box" id="color-picker-rec" data-value="#ff4757" onclick="toggleCustomPalette(this)" style="background-color: rgb(255, 71, 87);">#ff4757</div></div>
+            <div class="color-picker-label">EPISODE Text<div class="custom-color-box" id="color-picker-episode" data-value="#ffffff" onclick="toggleCustomPalette(this)" style="background-color: rgb(255, 255, 255);">#ffffff</div></div>
+            <div class="color-picker-label">Folgen-Nr<div class="custom-color-box" id="color-picker-ep-number" data-value="#2ecc71" onclick="toggleCustomPalette(this)" style="background-color: rgb(46, 204, 113);">#2ecc71</div></div>
         </div>
         <div class="form-row" style="margin-bottom: 8px;">
-            <div class="color-picker-label">Kapitel-Typ<input type="color" id="color-picker-kapitel-label" value="#1aafeb" oninput="updateLive()"></div>
-            <div class="color-picker-label">Kapitel-Name<input type="color" id="color-picker-kapitel-name" value="#2ecc71" oninput="updateLive()"></div>
-            <div class="color-picker-label">Kreis-Label 'FOLGE'<input type="color" id="color-picker-label-folge" value="#ffffff" oninput="updateLive()"></div>
+            <div class="color-picker-label">Kapitel-Typ<div class="custom-color-box" id="color-picker-kapitel-label" data-value="#1aafeb" onclick="toggleCustomPalette(this)" style="background-color: rgb(26, 175, 235);">#1aafeb</div></div>
+            <div class="color-picker-label">Kapitel-Name<div class="custom-color-box" id="color-picker-kapitel-name" data-value="#2ecc71" onclick="toggleCustomPalette(this)" style="background-color: rgb(46, 204, 113);">#2ecc71</div></div>
+            <div class="color-picker-label">Kreis-Label 'FOLGE'<div class="custom-color-box" id="color-picker-label-folge" data-value="#ffffff" onclick="toggleCustomPalette(this)" style="background-color: rgb(255, 255, 255);">#ffffff</div></div>
         </div>
         <div class="form-row" style="margin-bottom: 8px;">
-            <div class="color-picker-label">Kreis-Wert X/X<input type="color" id="color-picker-wert-folge" value="#ffffff" oninput="updateLive()"></div>
-            <div class="color-picker-label">Kreis-Label Timer<input type="color" id="color-picker-label-timer" value="#ffffff" oninput="updateLive()"></div>
-            <div class="color-picker-label">Kreis-Zeitwert<input type="color" id="color-picker-wert-timer" value="#1aafeb" oninput="updateLive()"></div>
+            <div class="color-picker-label">Kreis-Wert X/X<div class="custom-color-box" id="color-picker-wert-folge" data-value="#ffffff" onclick="toggleCustomPalette(this)" style="background-color: rgb(255, 255, 255);">#ffffff</div></div>
+            <div class="color-picker-label">Kreis-Label Timer<div class="custom-color-box" id="color-picker-label-timer" data-value="#ffffff" onclick="toggleCustomPalette(this)" style="background-color: rgb(255, 255, 255);">#ffffff</div></div>
+            <div class="color-picker-label">Kreis-Zeitwert<div class="custom-color-box" id="color-picker-wert-timer" data-value="#1aafeb" onclick="toggleCustomPalette(this)" style="background-color: rgb(26, 175, 235);">#1aafeb</div></div>
         </div>
         <div class="form-row">
-            <div class="color-picker-label">Quest-Label<input type="color" id="color-picker-quest-label" value="#1aafeb" oninput="updateLive()"></div>
-            <div class="color-picker-label">Quest-Text<input type="color" id="color-picker-quest-name" value="#2ecc71" oninput="updateLive()"></div>
-            <div class="color-picker-label">Spiel-Titel<input type="color" id="color-picker-game" value="#ffffff" oninput="updateLive()"></div>
-            <div class="color-picker-label">Fortschritt-Fuss<input type="color" id="color-picker-fortschritt" value="#ffffff" oninput="updateLive()"></div>
+            <div class="color-picker-label">Quest-Label<div class="custom-color-box" id="color-picker-quest-label" data-value="#1aafeb" onclick="toggleCustomPalette(this)" style="background-color: rgb(26, 175, 235);">#1aafeb</div></div>
+            <div class="color-picker-label">Quest-Text<div class="custom-color-box" id="color-picker-quest-name" data-value="#2ecc71" onclick="toggleCustomPalette(this)" style="background-color: rgb(46, 204, 113);">#2ecc71</div></div>
+            <div class="color-picker-label">Spiel-Titel<div class="custom-color-box" id="color-picker-game" data-value="#ffffff" onclick="toggleCustomPalette(this)" style="background-color: rgb(255, 255, 255);">#ffffff</div></div>
+            <div class="color-picker-label">Fortschritt-Fuss<div class="custom-color-box" id="color-picker-fortschritt" data-value="#ffffff" onclick="toggleCustomPalette(this)" style="background-color: rgb(255, 255, 255);">#ffffff</div></div>
         </div>
     </div>
 
@@ -483,15 +488,15 @@
     <div class="form-row">
         <div class="form-group" style="flex: 1;">
             <label>Ring Links (Folge)</label>
-            <input type="color" id="input-color-green" value="#2ecc71" oninput="updateLive()">
+            <div class="custom-color-box" id="input-color-green" data-value="#2ecc71" onclick="toggleCustomPalette(this)" style="background-color: rgb(46, 204, 113);">#2ecc71</div>
         </div>
         <div class="form-group" style="flex: 1;">
             <label>Ring Rechts (Timer)</label>
-            <input type="color" id="input-color-blue" value="#1aafeb" oninput="updateLive()">
+            <div class="custom-color-box" id="input-color-blue" data-value="#1aafeb" onclick="toggleCustomPalette(this)" style="background-color: rgb(26, 175, 235);">#1aafeb</div>
         </div>
         <div class="form-group" style="flex: 1;">
             <label>Kreis Neon Glow</label>
-            <input type="color" id="input-color-glow" value="#2ecc71" oninput="updateLive()">
+            <div class="custom-color-box" id="input-color-glow" data-value="#2ecc71" onclick="toggleCustomPalette(this)" style="background-color: rgb(46, 204, 113);">#2ecc71</div>
         </div>
     </div>
 
@@ -499,7 +504,7 @@
     <div class="form-row">
         <div class="form-group" style="flex: 1;">
             <label>Feste Hintergrund-Farbe</label>
-            <input type="color" id="input-bg-color" value="#000000" oninput="updateLive()">
+            <div class="custom-color-box" id="input-bg-color" data-value="#000000" onclick="toggleCustomPalette(this)" style="background-color: rgb(0, 0, 0);">#000000</div>
         </div>
         <div class="checkbox-group" style="flex: 1; margin-top: 18px; height: 30px;">
             <input type="checkbox" id="check-bg-transparent" checked onchange="updateLive()">
@@ -508,7 +513,7 @@
     </div>
     <div class="form-group">
         <label>Hintergrund-Medium (Bildpfad / .mp4 / .webm)</label>
-        <input type="text" id="input-bg" value="" placeholder="z.B. wald.mp4, neon.webm oder bild.jpg" oninput="updateLive()">
+        <input type="text" id="input-bg" value="Overlays-start.jpg" placeholder="z.B. wald.mp4, neon.webm oder bild.jpg" oninput="updateLive()">
     </div>
     <div class="form-row">
         <div class="form-group" style="flex: 1;">
@@ -524,18 +529,18 @@
     <button class="btn-copy" id="copy-btn" onclick="copyCodeToClipboard()">Code in Zwischenablage kopieren</button>
 </div>
 
-<div class="main-container" id="main-container">
-    <video id="main-bg-video" class="bg-video-element" autoplay loop muted playsinline></video>
+<div class="main-container" id="main-container" style="background-color: transparent; background-image: url(&quot;Overlays-start.jpg&quot;);">
+    <video id="main-bg-video" class="bg-video-element" autoplay="" loop="" muted="" playsinline="" src="" style="display: none;"></video>
 
     <div class="bird" style="animation-delay: 0s; top: 80px;"></div>
     <div class="bird" style="animation-delay: 5s; top: 120px;"></div>
 
     <div class="header-info">
-        <div class="rec-dot" id="live-rec-container" style="color: var(--color-rec);">● REC</div>
-        <h1 id="live-episode-container" style="margin:0; font-size: 2.5rem; color: var(--color-episode);">EPISODE Folge: <span id="ep-header" style="color: var(--color-ep-number);">20</span></h1>
-        <h2 style="margin:0; letter-spacing: 2px;" id="live-kapitel-container">
-            <span style="color: var(--color-kapitel-label);"><span id="lbl-kapitel-display">Kapitel</span> <span id="live-kapitel-nr">5</span>: </span>
-            <span id="live-kapitel-name" style="color: var(--color-kapitel-name);">Vegetarier</span>
+        <div class="rec-dot" id="live-rec-container" style="display: flex;">● REC</div>
+        <h1 id="live-episode-container" style="margin: 0px; font-size: 2.5rem; color: var(--color-episode); display: block;">EPISODE Folge: <span id="ep-header" style="color: var(--color-ep-number);">1</span></h1>
+        <h2 style="margin: 0px; letter-spacing: 2px; display: block;" id="live-kapitel-container">
+            <span style="color: var(--color-kapitel-label);"><span id="lbl-kapitel-display">Kapitel</span> <span id="live-kapitel-nr">1</span>: </span>
+            <span id="live-kapitel-name" style="color: var(--color-kapitel-name);">Kapitel Name</span>
         </h2>
     </div>
 
@@ -543,42 +548,42 @@
         <div style="display: flex; flex-direction: column; align-items: flex-end;">
             <div style="display: flex; gap: 25px;">
                 
-                <div class="progress-box" id="folgen-widget-container">
-                    <svg width="160" height="160" id="live-folgen-svg">
+                <div class="progress-box" id="folgen-widget-container" style="display: block;">
+                    <svg width="160" height="160" id="live-folgen-svg" style="visibility: visible;">
                         <circle cx="80" cy="80" r="70" stroke="rgba(0,0,0,0.5)" stroke-width="12" fill="none"></circle>
-                        <circle id="progress-bar" class="bar" cx="80" cy="80" r="70" fill="none" style="stroke-dashoffset: 351.858px;"></circle>
+                        <circle id="progress-bar" class="bar" cx="80" cy="80" r="70" fill="none" style="stroke-dashoffset: 435.425px;"></circle>
                     </svg>
-                    <div id="live-folgen-text-container" style="position: absolute; top:50%; left:50%; transform:translate(-50%, -50%); width: 110px;">
+                    <div id="live-folgen-text-container" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 110px; display: block;">
                         <div style="font-size: 0.75rem; opacity: 0.8; letter-spacing:1px; color: var(--color-label-folge);" id="folgen-label-display">FOLGE</div>
-                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--color-wert-folge);"><span id="curr-val">20</span>/<span id="max-val">100</span></div>
+                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--color-wert-folge);"><span id="curr-val">1</span>/<span id="max-val">100</span></div>
                     </div>
                 </div>
 
-                <div class="progress-box" id="timer-widget-container">
-                    <svg width="160" height="160" id="live-timer-svg">
+                <div class="progress-box" id="timer-widget-container" style="display: block;">
+                    <svg width="160" height="160" id="live-timer-svg" style="visibility: visible;">
                         <circle cx="80" cy="80" r="70" stroke="rgba(0,0,0,0.5)" stroke-width="12" fill="none"></circle>
-                        <circle id="timer-bar" class="bar-timer" cx="80" cy="80" r="70" fill="none"></circle>
+                        <circle id="timer-bar" class="bar-timer" cx="80" cy="80" r="70" fill="none" style="stroke-dashoffset: 0;"></circle>
                     </svg>
-                    <div id="live-timer-text-container" style="position: absolute; top:50%; left:50%; transform:translate(-50%, -50%); width: 110px;">
-                        <div style="font-size: 0.75rem; opacity: 0.8; letter-spacing:1px; color: var(--color-label-timer);" id="timer-label-display">RESTZEIT</div>
+                    <div id="live-timer-text-container" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 110px; display: block;">
+                        <div style="font-size: 0.75rem; opacity: 0.8; letter-spacing:1px; color: var(--color-label-timer);" id="timer-label-display">PAUSIERT</div>
                         <div style="font-size: 1.4rem; font-weight: bold; color: var(--color-wert-timer);" id="timer-display">31:00</div>
                     </div>
                 </div>
 
             </div>
 
-            <div class="quest-display-container" id="live-quest-container">
+            <div class="quest-display-container" id="live-quest-container" style="display: block;">
                 <h2 style="margin:10px 0 0 0; letter-spacing: 1px; font-size: 1.3rem;">
                     <span id="lbl-quest-display" style="color: var(--color-quest-label);">Quest:</span> 
-                    <span id="live-quest" style="color: var(--color-quest-name);">Der Gutsherr Alle Hofgebäuden Reparieren</span>
+                    <span id="live-quest" style="color: var(--color-quest-name);">Quest Name</span>
                 </h2>
             </div>
         </div>
     </div>
 
     <div class="footer-status" id="live-footer-container">
-        <h2 id="live-game" style="margin:0; letter-spacing: 2px; color: var(--color-game);">FARMER'S DYNASTY 2</h2>
-        <span id="live-fortschritt-text" style="color: var(--color-fortschritt);">GESAMTFORTSCHRITT: <span id="perc-display" style="color: var(--farm-green);">0</span>% ERREICHT</span>
+        <h2 id="live-game" style="margin: 0px; letter-spacing: 2px; color: var(--color-game); display: block;">SPIEL-NAME</h2>
+        <span id="live-fortschritt-text" style="color: var(--color-fortschritt); display: inline;">GESAMTFORTSCHRITT: <span id="perc-display" style="color: var(--farm-green);">0</span>% ERREICHT</span>
     </div>
 </div>
 
@@ -587,6 +592,71 @@
     let isTimerRunning = false;
     let totalSeconds = 31 * 60;
     let secondsLeft = 31 * 60;
+
+    // Vorgefertigte Farb-Palette zur schnellen Auswahl ohne lästige Popups
+    const colorOptions = [
+        '#ffffff', '#ff4757', '#2ecc71', '#1aafeb', '#ffb300', 
+        '#e74c3c', '#9b59b6', '#34495e', '#f1c40f', '#e67e22',
+        '#000000', '#111111', '#222222', '#555555', '#aaaaaa'
+    ];
+
+    function setCustomBoxColor(element, hex) {
+        element.setAttribute('data-value', hex);
+        element.style.backgroundColor = hex;
+        element.innerText = hex;
+    }
+
+    function toggleCustomPalette(element) {
+        // Falls bereits eine Palette offen ist, schließen
+        const existing = document.getElementById('active-custom-palette');
+        if (existing) {
+            const parent = existing.parentNode;
+            existing.remove();
+            if (parent === element) return; // Wenn man das selbe Element nochmal klickt, schließt es sich nur
+        }
+
+        const div = document.createElement('div');
+        div.id = 'active-custom-palette';
+        div.style.position = 'absolute';
+        div.style.top = '32px';
+        div.style.left = '0';
+        div.style.width = '160px';
+        div.style.background = '#222';
+        div.style.border = '1px solid #ff0055';
+        div.style.borderRadius = '4px';
+        div.style.padding = '6px';
+        div.style.display = 'grid';
+        div.style.gridTemplateColumns = 'repeat(5, 1fr)';
+        div.style.gap = '4px';
+        div.style.zIndex = '100000';
+
+        colorOptions.forEach(color => {
+            const opt = document.createElement('div');
+            opt.style.width = '24px';
+            opt.style.height = '24px';
+            opt.style.borderRadius = '2px';
+            opt.style.background = color;
+            opt.style.cursor = 'pointer';
+            opt.style.border = '1px solid #444';
+            opt.onclick = (e) => {
+                e.stopPropagation();
+                setCustomBoxColor(element, color);
+                div.remove();
+                updateLive();
+            };
+            div.appendChild(opt);
+        });
+
+        // Schließen wenn man außerhalb klickt
+        document.addEventListener('click', function closePalette(e) {
+            if (!element.contains(e.target)) {
+                div.remove();
+                document.removeEventListener('click', closePalette);
+            }
+        });
+
+        element.appendChild(div);
+    }
 
     window.onload = () => {
         // LocalStorage Werte laden falls vorhanden
@@ -602,27 +672,27 @@
             document.getElementById('input-kapitel-nr').value = localStorage.getItem('overlay_kapitel_nr');
             document.getElementById('input-kapitel-name').value = localStorage.getItem('overlay_kapitel_name');
             
-            document.getElementById('input-color-green').value = localStorage.getItem('overlay_color_green') || "#2ecc71";
-            document.getElementById('input-color-blue').value = localStorage.getItem('overlay_color_blue') || "#1aafeb";
-            document.getElementById('input-color-glow').value = localStorage.getItem('overlay_color_glow') || "#2ecc71";
+            setCustomBoxColor(document.getElementById('input-color-green'), localStorage.getItem('overlay_color_green') || "#2ecc71");
+            setCustomBoxColor(document.getElementById('input-color-blue'), localStorage.getItem('overlay_color_blue') || "#1aafeb");
+            setCustomBoxColor(document.getElementById('input-color-glow'), localStorage.getItem('overlay_color_glow') || "#2ecc71");
             
-            // Neue Farbwerte aus Storage holen
-            if(localStorage.getItem('ov_col_rec')) document.getElementById('color-picker-rec').value = localStorage.getItem('ov_col_rec');
-            if(localStorage.getItem('ov_col_ep')) document.getElementById('color-picker-episode').value = localStorage.getItem('ov_col_ep');
-            if(localStorage.getItem('ov_col_epnum')) document.getElementById('color-picker-ep-number').value = localStorage.getItem('ov_col_epnum');
-            if(localStorage.getItem('ov_col_kaplbl')) document.getElementById('color-picker-kapitel-label').value = localStorage.getItem('ov_col_kaplbl');
-            if(localStorage.getItem('ov_col_kapnm')) document.getElementById('color-picker-kapitel-name').value = localStorage.getItem('ov_col_kapnm');
-            if(localStorage.getItem('ov_col_lblflg')) document.getElementById('color-picker-label-folge').value = localStorage.getItem('ov_col_lblflg');
-            if(localStorage.getItem('ov_col_wrtflg')) document.getElementById('color-picker-wert-folge').value = localStorage.getItem('ov_col_wrtflg');
-            if(localStorage.getItem('ov_col_lbltmr')) document.getElementById('color-picker-label-timer').value = localStorage.getItem('ov_col_lbltmr');
-            if(localStorage.getItem('ov_col_wrttmr')) document.getElementById('color-picker-wert-timer').value = localStorage.getItem('ov_col_wrttmr');
-            if(localStorage.getItem('ov_col_qstlbl')) document.getElementById('color-picker-quest-label').value = localStorage.getItem('ov_col_qstlbl');
-            if(localStorage.getItem('ov_col_qstnm')) document.getElementById('color-picker-quest-name').value = localStorage.getItem('ov_col_qstnm');
-            if(localStorage.getItem('ov_col_gm')) document.getElementById('color-picker-game').value = localStorage.getItem('ov_col_gm');
-            if(localStorage.getItem('ov_col_frt')) document.getElementById('color-picker-fortschritt').value = localStorage.getItem('ov_col_frt');
+            // Exakte Farbwerte aus Storage holen
+            if(localStorage.getItem('ov_col_rec')) setCustomBoxColor(document.getElementById('color-picker-rec'), localStorage.getItem('ov_col_rec'));
+            if(localStorage.getItem('ov_col_ep')) setCustomBoxColor(document.getElementById('color-picker-episode'), localStorage.getItem('ov_col_ep'));
+            if(localStorage.getItem('ov_col_epnum')) setCustomBoxColor(document.getElementById('color-picker-ep-number'), localStorage.getItem('ov_col_epnum'));
+            if(localStorage.getItem('ov_col_kaplbl')) setCustomBoxColor(document.getElementById('color-picker-kapitel-label'), localStorage.getItem('ov_col_kaplbl'));
+            if(localStorage.getItem('ov_col_kapnm')) setCustomBoxColor(document.getElementById('color-picker-kapitel-name'), localStorage.getItem('ov_col_kapnm'));
+            if(localStorage.getItem('ov_col_lblflg')) setCustomBoxColor(document.getElementById('color-picker-label-folge'), localStorage.getItem('ov_col_lblflg'));
+            if(localStorage.getItem('ov_col_wrtflg')) setCustomBoxColor(document.getElementById('color-picker-wert-folge'), localStorage.getItem('ov_col_wrtflg'));
+            if(localStorage.getItem('ov_col_lbltmr')) setCustomBoxColor(document.getElementById('color-picker-label-timer'), localStorage.getItem('ov_col_lbltmr'));
+            if(localStorage.getItem('ov_col_wrttmr')) setCustomBoxColor(document.getElementById('color-picker-wert-timer'), localStorage.getItem('ov_col_wrttmr'));
+            if(localStorage.getItem('ov_col_qstlbl')) setCustomBoxColor(document.getElementById('color-picker-quest-label'), localStorage.getItem('ov_col_qstlbl'));
+            if(localStorage.getItem('ov_col_qstnm')) setCustomBoxColor(document.getElementById('color-picker-quest-name'), localStorage.getItem('ov_col_qstnm'));
+            if(localStorage.getItem('ov_col_gm')) setCustomBoxColor(document.getElementById('color-picker-game'), localStorage.getItem('ov_col_gm'));
+            if(localStorage.getItem('ov_col_frt')) setCustomBoxColor(document.getElementById('color-picker-fortschritt'), localStorage.getItem('ov_col_frt'));
 
             // Hintergrund-Settings aus Storage laden
-            if(localStorage.getItem('overlay_bg_color')) document.getElementById('input-bg-color').value = localStorage.getItem('overlay_bg_color');
+            if(localStorage.getItem('overlay_bg_color')) setCustomBoxColor(document.getElementById('input-bg-color'), localStorage.getItem('overlay_bg_color'));
             if(localStorage.getItem('overlay_bg_transparent') !== null) document.getElementById('check-bg-transparent').checked = localStorage.getItem('overlay_bg_transparent') === 'true';
 
             document.getElementById('input-width').value = localStorage.getItem('overlay_width') || "1920";
@@ -644,6 +714,25 @@
             if(localStorage.getItem('overlay_show_quest') !== null) document.getElementById('check-show-quest').checked = localStorage.getItem('overlay_show_quest') === 'true';
             if(localStorage.getItem('overlay_show_game') !== null) document.getElementById('check-show-game').checked = localStorage.getItem('overlay_show_game') === 'true';
             if(localStorage.getItem('overlay_show_fortschritt') !== null) document.getElementById('check-show-fortschritt').checked = localStorage.getItem('overlay_show_fortschritt') === 'true';
+        } else {
+            // Initiale Standardfarben vergeben falls leer
+            setCustomBoxColor(document.getElementById('color-picker-rec'), '#ff4757');
+            setCustomBoxColor(document.getElementById('color-picker-episode'), '#ffffff');
+            setCustomBoxColor(document.getElementById('color-picker-ep-number'), '#2ecc71');
+            setCustomBoxColor(document.getElementById('color-picker-kapitel-label'), '#1aafeb');
+            setCustomBoxColor(document.getElementById('color-picker-kapitel-name'), '#2ecc71');
+            setCustomBoxColor(document.getElementById('color-picker-label-folge'), '#ffffff');
+            setCustomBoxColor(document.getElementById('color-picker-wert-folge'), '#ffffff');
+            setCustomBoxColor(document.getElementById('color-picker-label-timer'), '#ffffff');
+            setCustomBoxColor(document.getElementById('color-picker-wert-timer'), '#1aafeb');
+            setCustomBoxColor(document.getElementById('color-picker-quest-label'), '#1aafeb');
+            setCustomBoxColor(document.getElementById('color-picker-quest-name'), '#2ecc71');
+            setCustomBoxColor(document.getElementById('color-picker-game'), '#ffffff');
+            setCustomBoxColor(document.getElementById('color-picker-fortschritt'), '#ffffff');
+            setCustomBoxColor(document.getElementById('input-color-green'), '#2ecc71');
+            setCustomBoxColor(document.getElementById('input-color-blue'), '#1aafeb');
+            setCustomBoxColor(document.getElementById('input-color-glow'), '#2ecc71');
+            setCustomBoxColor(document.getElementById('input-bg-color'), '#000000');
         }
 
         const savedDuration = parseInt(document.getElementById('input-dauer').value) || 31;
@@ -681,31 +770,31 @@
         const lblRec = document.getElementById('input-label-rec').value;
         const lblFolgenkreis = document.getElementById('input-label-folgenkreis').value;
         
-        const colGreen = document.getElementById('input-color-green').value;
-        const colBlue = document.getElementById('input-color-blue').value;
-        const colGlow = document.getElementById('input-color-glow').value;
+        const colGreen = document.getElementById('input-color-green').getAttribute('data-value');
+        const colBlue = document.getElementById('input-color-blue').getAttribute('data-value');
+        const colGlow = document.getElementById('input-color-glow').getAttribute('data-value');
         
         const wWidth = document.getElementById('input-width').value || "1920";
         const wHeight = document.getElementById('input-height').value || "1080";
         const bgImgOrVideo = document.getElementById('input-bg').value.trim();
 
         // Farbwerte aus den neuen Pickern holen
-        const cRec = document.getElementById('color-picker-rec').value;
-        const cEp = document.getElementById('color-picker-episode').value;
-        const cEpNum = document.getElementById('color-picker-ep-number').value;
-        const cKapLbl = document.getElementById('color-picker-kapitel-label').value;
-        const cKapNm = document.getElementById('color-picker-kapitel-name').value;
-        const cLblFlg = document.getElementById('color-picker-label-folge').value;
-        const cWrtFlg = document.getElementById('color-picker-wert-folge').value;
-        const cLblTmr = document.getElementById('color-picker-label-timer').value;
-        const cWrtTmr = document.getElementById('color-picker-wert-timer').value;
-        const cQstLbl = document.getElementById('color-picker-quest-label').value;
-        const cQstNm = document.getElementById('color-picker-quest-name').value;
-        const cGm = document.getElementById('color-picker-game').value;
-        const cFrt = document.getElementById('color-picker-fortschritt').value;
+        const cRec = document.getElementById('color-picker-rec').getAttribute('data-value');
+        const cEp = document.getElementById('color-picker-episode').getAttribute('data-value');
+        const cEpNum = document.getElementById('color-picker-ep-number').getAttribute('data-value');
+        const cKapLbl = document.getElementById('color-picker-kapitel-label').getAttribute('data-value');
+        const cKapNm = document.getElementById('color-picker-kapitel-name').getAttribute('data-value');
+        const cLblFlg = document.getElementById('color-picker-label-folge').getAttribute('data-value');
+        const cWrtFlg = document.getElementById('color-picker-wert-folge').getAttribute('data-value');
+        const cLblTmr = document.getElementById('color-picker-label-timer').getAttribute('data-value');
+        const cWrtTmr = document.getElementById('color-picker-wert-timer').getAttribute('data-value');
+        const cQstLbl = document.getElementById('color-picker-quest-label').getAttribute('data-value');
+        const cQstNm = document.getElementById('color-picker-quest-name').getAttribute('data-value');
+        const cGm = document.getElementById('color-picker-game').getAttribute('data-value');
+        const cFrt = document.getElementById('color-picker-fortschritt').getAttribute('data-value');
 
         // Hintergrund Farbe & Transparenz
-        const bgFarbe = document.getElementById('input-bg-color').value;
+        const bgFarbe = document.getElementById('input-bg-color').getAttribute('data-value');
         const bgTransparent = document.getElementById('check-bg-transparent').checked;
 
         // Schalter abfragen
@@ -796,7 +885,6 @@
 
         if(bgImgOrVideo !== "") {
             const ext = bgImgOrVideo.split('.').pop().toLowerCase();
-            // Wenn es ein Video ist (.mp4 oder .webm)
             if(ext === 'mp4' || ext === 'webm') {
                 container.style.backgroundImage = "none";
                 if(videoEl.getAttribute('src') !== bgImgOrVideo) {
@@ -805,13 +893,11 @@
                 }
                 videoEl.style.display = "block";
             } else {
-                // Wenn es ein Bild ist (.jpg, .png etc.)
                 videoEl.style.display = "none";
                 videoEl.src = "";
                 container.style.backgroundImage = `url('${bgImgOrVideo}')`;
             }
         } else {
-            // Gar kein Medium eingetragen
             videoEl.style.display = "none";
             videoEl.src = "";
             container.style.backgroundImage = "none";
@@ -1012,29 +1098,29 @@
         const lblRecVal = document.getElementById('input-label-rec').value;
         const lblFolgenkreisVal = document.getElementById('input-label-folgenkreis').value;
         
-        const colGreenVal = document.getElementById('input-color-green').value;
-        const colBlueVal = document.getElementById('input-color-blue').value;
-        const colGlowVal = document.getElementById('input-color-glow').value;
+        const colGreenVal = document.getElementById('input-color-green').getAttribute('data-value');
+        const colBlueVal = document.getElementById('input-color-blue').getAttribute('data-value');
+        const colGlowVal = document.getElementById('input-color-glow').getAttribute('data-value');
         const wWidthVal = document.getElementById('input-width').value;
         const wHeightVal = document.getElementById('input-height').value;
         const bgVal = document.getElementById('input-bg').value;
 
         // Exakte Farbwerte abgreifen
-        const valCRec = document.getElementById('color-picker-rec').value;
-        const valCEp = document.getElementById('color-picker-episode').value;
-        const valCEpNum = document.getElementById('color-picker-ep-number').value;
-        const valCKapLbl = document.getElementById('color-picker-kapitel-label').value;
-        const valCKapNm = document.getElementById('color-picker-kapitel-name').value;
-        const valCLblFlg = document.getElementById('color-picker-label-folge').value;
-        const valCWrtFlg = document.getElementById('color-picker-wert-folge').value;
-        const valCLblTmr = document.getElementById('color-picker-label-timer').value;
-        const valCWrtTmr = document.getElementById('color-picker-wert-timer').value;
-        const valCQstLbl = document.getElementById('color-picker-quest-label').value;
-        const valCQstNm = document.getElementById('color-picker-quest-name').value;
-        const valCGm = document.getElementById('color-picker-game').value;
-        const valCFrt = document.getElementById('color-picker-fortschritt').value;
+        const valCRec = document.getElementById('color-picker-rec').getAttribute('data-value');
+        const valCEp = document.getElementById('color-picker-episode').getAttribute('data-value');
+        const valCEpNum = document.getElementById('color-picker-ep-number').getAttribute('data-value');
+        const valCKapLbl = document.getElementById('color-picker-kapitel-label').getAttribute('data-value');
+        const valCKapNm = document.getElementById('color-picker-kapitel-name').getAttribute('data-value');
+        const valCLblFlg = document.getElementById('color-picker-label-folge').getAttribute('data-value');
+        const valCWrtFlg = document.getElementById('color-picker-wert-folge').getAttribute('data-value');
+        const valCLblTmr = document.getElementById('color-picker-label-timer').getAttribute('data-value');
+        const valCWrtTmr = document.getElementById('color-picker-wert-timer').getAttribute('data-value');
+        const valCQstLbl = document.getElementById('color-picker-quest-label').getAttribute('data-value');
+        const valCQstNm = document.getElementById('color-picker-quest-name').getAttribute('data-value');
+        const valCGm = document.getElementById('color-picker-game').getAttribute('data-value');
+        const valCFrt = document.getElementById('color-picker-fortschritt').getAttribute('data-value');
 
-        const valBgCol = document.getElementById('input-bg-color').value;
+        const valBgCol = document.getElementById('input-bg-color').getAttribute('data-value');
         const valBgTrans = document.getElementById('check-bg-transparent').checked ? "checked" : "";
 
         // Checkboxen
@@ -1066,29 +1152,29 @@
         currentHTML = currentHTML.replace(/id="input-label-rec"\s+value=".*?"/, `id="input-label-rec" value="${lblRecVal}"`);
         currentHTML = currentHTML.replace(/id="input-label-folgenkreis"\s+value=".*?"/, `id="input-label-folgenkreis" value="${lblFolgenkreisVal}"`);
         
-        currentHTML = currentHTML.replace(/id="input-color-green"\s+value=".*?"/, `id="input-color-green" value="${colGreenVal}"`);
-        currentHTML = currentHTML.replace(/id="input-color-blue"\s+value=".*?"/, `id="input-color-blue" value="${colBlueVal}"`);
-        currentHTML = currentHTML.replace(/id="input-color-glow"\s+value=".*?"/, `id="input-color-glow" value="${colGlowVal}"`);
+        currentHTML = currentHTML.replace(/id="input-color-green"\s+data-value=".*?"/, `id="input-color-green" data-value="${colGreenVal}"`);
+        currentHTML = currentHTML.replace(/id="input-color-blue"\s+data-value=".*?"/, `id="input-color-blue" data-value="${colBlueVal}"`);
+        currentHTML = currentHTML.replace(/id="input-color-glow"\s+data-value=".*?"/, `id="input-color-glow" data-value="${colGlowVal}"`);
         currentHTML = currentHTML.replace(/id="input-width"\s+value=".*?"/, `id="input-width" value="${wWidthVal}"`);
-        currentHTML = currentHTML.replace(/id="input-height"\s+value=".*?"/, `id="input-height" value="${wHeightVal}px"`);
+        currentHTML = currentHTML.replace(/id="input-height"\s+value=".*?"/, `id="input-height" value="${wHeightVal}"`);
         currentHTML = currentHTML.replace(/id="input-bg"\s+value=".*?"/, `id="input-bg" value="${bgVal}"`);
 
         // Picker im Exporthtml ersetzen
-        currentHTML = currentHTML.replace(/id="color-picker-rec"\s+value=".*?"/, `id="color-picker-rec" value="${valCRec}"`);
-        currentHTML = currentHTML.replace(/id="color-picker-episode"\s+value=".*?"/, `id="color-picker-episode" value="${valCEp}"`);
-        currentHTML = currentHTML.replace(/id="color-picker-ep-number"\s+value=".*?"/, `id="color-picker-ep-number" value="${valCEpNum}"`);
-        currentHTML = currentHTML.replace(/id="color-picker-kapitel-label"\s+value=".*?"/, `id="color-picker-kapitel-label" value="${valCKapLbl}"`);
-        currentHTML = currentHTML.replace(/id="color-picker-kapitel-name"\s+value=".*?"/, `id="color-picker-kapitel-name" value="${valCKapNm}"`);
-        currentHTML = currentHTML.replace(/id="color-picker-label-folge"\s+value=".*?"/, `id="color-picker-label-folge" value="${valCLblFlg}"`);
-        currentHTML = currentHTML.replace(/id="color-picker-wert-folge"\s+value=".*?"/, `id="color-picker-wert-folge" value="${valCWrtFlg}"`);
-        currentHTML = currentHTML.replace(/id="color-picker-label-timer"\s+value=".*?"/, `id="color-picker-label-timer" value="${valCLblTmr}"`);
-        currentHTML = currentHTML.replace(/id="color-picker-wert-timer"\s+value=".*?"/, `id="color-picker-wert-timer" value="${valCWrtTmr}"`);
-        currentHTML = currentHTML.replace(/id="color-picker-quest-label"\s+value=".*?"/, `id="color-picker-quest-label" value="${valCQstLbl}"`);
-        currentHTML = currentHTML.replace(/id="color-picker-quest-name"\s+value=".*?"/, `id="color-picker-quest-name" value="${valCQstNm}"`);
-        currentHTML = currentHTML.replace(/id="color-picker-game"\s+value=".*?"/, `id="color-picker-game" value="${valCGm}"`);
-        currentHTML = currentHTML.replace(/id="color-picker-fortschritt"\s+value=".*?"/, `id="color-picker-fortschritt" value="${valCFrt}"`);
+        currentHTML = currentHTML.replace(/id="color-picker-rec"\s+data-value=".*?"/, `id="color-picker-rec" data-value="${valCRec}"`);
+        currentHTML = currentHTML.replace(/id="color-picker-episode"\s+data-value=".*?"/, `id="color-picker-episode" data-value="${valCEp}"`);
+        currentHTML = currentHTML.replace(/id="color-picker-ep-number"\s+data-value=".*?"/, `id="color-picker-ep-number" data-value="${valCEpNum}"`);
+        currentHTML = currentHTML.replace(/id="color-picker-kapitel-label"\s+data-value=".*?"/, `id="color-picker-kapitel-label" data-value="${valCKapLbl}"`);
+        currentHTML = currentHTML.replace(/id="color-picker-kapitel-name"\s+data-value=".*?"/, `id="color-picker-kapitel-name" data-value="${valCKapNm}"`);
+        currentHTML = currentHTML.replace(/id="color-picker-label-folge"\s+data-value=".*?"/, `id="color-picker-label-folge" data-value="${valCLblFlg}"`);
+        currentHTML = currentHTML.replace(/id="color-picker-wert-folge"\s+data-value=".*?"/, `id="color-picker-wert-folge" data-value="${valCWrtFlg}"`);
+        currentHTML = currentHTML.replace(/id="color-picker-label-timer"\s+data-value=".*?"/, `id="color-picker-label-timer" data-value="${valCLblTmr}"`);
+        currentHTML = currentHTML.replace(/id="color-picker-wert-timer"\s+data-value=".*?"/, `id="color-picker-wert-timer" data-value="${valCWrtTmr}"`);
+        currentHTML = currentHTML.replace(/id="color-picker-quest-label"\s+data-value=".*?"/, `id="color-picker-quest-label" data-value="${valCQstLbl}"`);
+        currentHTML = currentHTML.replace(/id="color-picker-quest-name"\s+data-value=".*?"/, `id="color-picker-quest-name" data-value="${valCQstNm}"`);
+        currentHTML = currentHTML.replace(/id="color-picker-game"\s+data-value=".*?"/, `id="color-picker-game" data-value="${valCGm}"`);
+        currentHTML = currentHTML.replace(/id="color-picker-fortschritt"\s+data-value=".*?"/, `id="color-picker-fortschritt" data-value="${valCFrt}"`);
 
-        currentHTML = currentHTML.replace(/id="input-bg-color"\s+value=".*?"/, `id="input-bg-color" value="${valBgCol}"`);
+        currentHTML = currentHTML.replace(/id="input-bg-color"\s+data-value=".*?"/, `id="input-bg-color" data-value="${valBgCol}"`);
         currentHTML = currentHTML.replace(/id="check-bg-transparent"\s*(checked=".*?"|checked)?/, `id="check-bg-transparent" ${valBgTrans}`);
 
         // Checkboxen ersetzen
@@ -1139,5 +1225,5 @@
     }
 </script>
 
-</body>
-</html>
+
+</body></html>
