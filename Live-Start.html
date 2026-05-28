@@ -45,246 +45,768 @@
         .widget-container {
             text-align: center;
             position: relative;
-            background: rgba(0, 0, 0, 0.85);
-            padding: 30px;
-            border-radius: 20px;
-            border: 2px solid var(--farm-green);
-            box-shadow: 0 0 20px var(--neon-glow);
-            width: 550px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
-        .rec-box {
-            color: var(--color-text-rec);
-            font-size: 1.5rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 15px;
-            text-shadow: var(--text-shadow);
+        /* KREIS-BEREICH */
+        .progress-box {
+            position: relative;
+            width: 240px;
+            height: 240px;
+            margin: 0 auto;
         }
 
-        .rec-dot {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            background-color: var(--color-text-rec);
-            border-radius: 50%;
-            margin-right: 8px;
-            animation: blink 1.5s infinite;
+        svg {
+            transform: rotate(-90deg);
+            filter: drop-shadow(0 0 10px var(--neon-glow));
         }
 
-        @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0.3; }
-            100% { opacity: 1; }
+        circle {
+            fill: none;
+            stroke-width: 12;
         }
 
-        .info-text {
-            font-size: 1.3rem;
-            margin: 8px 0;
-            text-shadow: var(--text-shadow);
-        }
-
-        /* FARBEN FÜR LABELS & WERTE */
-        .lbl-fortschritt { color: var(--color-text-label-fortschritt); }
-        .wrt-fortschritt { color: var(--color-text-werte-fortschritt); }
-        .text-prozent { color: var(--color-text-prozent); font-weight: bold; }
-        .lbl-quest { color: var(--color-text-label-quest); }
-        .wrt-quest { color: var(--color-text-wert-quest); }
-        .lbl-folge { color: var(--color-text-folge-label); }
-        .wrt-folge { color: var(--color-text-folge-wert); }
-        .lbl-kapitel { color: var(--color-text-label-kapitel); }
-        .wrt-kapitel { color: var(--color-text-wert-kapitel); }
-
-        /* PROGRESS BARS */
-        .progress-container {
-            background: #222;
-            border-radius: 10px;
-            margin: 15px 0;
-            height: 20px;
-            width: 100%;
-            overflow: hidden;
-            border: 1px solid #444;
-        }
-
+        .track { stroke: rgba(0, 0, 0, 0.4); }
+         
         .progress-bar {
-            background: var(--color-progress-bar);
-            height: 100%;
-            width: 0%;
-            transition: width 0.5s ease;
-            box-shadow: 0 0 10px var(--color-progress-bar);
+            stroke: var(--color-progress-bar);
+            stroke-linecap: round;
+            stroke-dasharray: 565.48; 
+            stroke-dashoffset: 565.48;
+            transition: stroke-dashoffset 0.5s ease-in-out;
+            animation: pulse-glow 3s infinite ease-in-out;
         }
 
         /* TIMER KREIS */
-        .timer-container {
-            margin-top: 25px;
-            position: relative;
-            display: inline-block;
-        }
-
-        .svg-circle {
-            transform: rotate(-90deg);
-        }
-
-        .circle-bg {
-            fill: none;
-            stroke: #222;
-            stroke-width: 8;
-        }
-
-        .circle-progress {
-            fill: none;
+        .timer-bar {
             stroke: var(--color-timer-bar);
-            stroke-width: 8;
+            stroke-width: 6;
             stroke-linecap: round;
+            stroke-dasharray: 471.23; 
+            stroke-dashoffset: 471.23;
             transition: stroke-dashoffset 1s linear;
         }
 
-        .timer-text {
+        .outer-ring {
+            stroke: rgba(255, 255, 255, 0.15);
+            stroke-width: 2;
+            stroke-dasharray: 10, 15;
+            animation: rotate-ring 30s linear infinite;
+            transform-origin: center;
+        }
+
+        @keyframes rotate-ring { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes pulse-glow {
+            0%, 100% { filter: drop-shadow(0 0 8px var(--neon-glow)); opacity: 0.8; }
+            50% { filter: drop-shadow(0 0 20px var(--color-progress-bar)); opacity: 1; }
+        }
+
+        /* TEXT IM KREIS */
+        .inner-content {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #ffffff;
             text-shadow: var(--text-shadow);
-            white-space: nowrap;
+            width: 100%;
         }
+
+        .status-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: bold;
+            color: var(--color-text-label-fortschritt);
+            margin-bottom: 2px;
+        }
+
+        .ratio { font-size: 2rem; font-weight: bold; margin: 0; color: var(--color-text-werte-fortschritt); }
+        .percent-display { font-size: 1.4rem; font-weight: bold; color: var(--color-text-prozent); margin-top: 5px; }
+
+        /* INFOS UNTER DEM KREIS */
+        .footer-info { margin-top: 20px; text-shadow: var(--text-shadow); }
+        .episode-title { font-size: 1.8rem; color: var(--color-text-folge-label); text-transform: uppercase; letter-spacing: 4px; margin: 0; }
+        .episode-title span.ep-mark { color: var(--color-text-folge-wert); }
+        .episode-title span.ep-val { color: var(--color-text-folge-wert); font-weight: bold; }
+         
+        .rec-dot { 
+            color: var(--color-text-rec); 
+            font-weight: bold; 
+            animation: blink 1s infinite; 
+            margin-bottom: 15px; 
+            font-size: 1.2rem;
+            text-shadow: var(--text-shadow);
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+
+        /* ==========================================
+            ADMIN-PANEL STYLES
+           ========================================== */
+        #admin-panel {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            width: 350px;
+            max-height: 95vh;
+            overflow-y: auto;
+            background: rgba(15, 15, 15, 0.98);
+            border: 2px solid #1aafeb;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 0 25px rgba(0,0,0,0.8);
+            z-index: 9999;
+            font-family: Arial, sans-serif;
+            color: #fff;
+            text-align: left;
+            display: none; 
+        }
+
+        @media (pointer: fine), (pointer: coarse) {
+            body:hover #admin-panel, 
+            #admin-panel:focus-within {
+                display: block;
+            }
+        }
+
+        #admin-panel h3 {
+            margin: 0 0 12px 0;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #1aafeb;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+
+        .panel-section {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #ff0055;
+            margin: 12px 0 6px 0;
+            font-weight: bold;
+            border-bottom: 1px dashed #444;
+            padding-bottom: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.75rem;
+            margin-bottom: 4px;
+            color: #bbb;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 6px;
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: white;
+            font-size: 0.85rem;
+            box-sizing: border-box;
+        }
+
+        .form-group input[type="color"] {
+            padding: 2px;
+            height: 30px;
+            cursor: pointer;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            background: #1a1a1a;
+            padding: 6px;
+            border-radius: 4px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            display: inline;
+            margin: 0;
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: #ddd;
+        }
+
+        .form-group input:focus {
+            border-color: #2ecc71;
+            outline: none;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .timer-info {
+            font-size: 11px;
+            color: #ffb300;
+            margin-top: 2px;
+            font-weight: bold;
+        }
+
+        .timer-btn-container {
+            display: flex;
+            gap: 6px;
+            margin-top: 6px;
+            margin-bottom: 10px;
+        }
+
+        .timer-btn {
+            flex: 1;
+            padding: 5px;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: opacity 0.2s;
+        }
+
+        .timer-btn:hover {
+            opacity: 0.8;
+        }
+
+        #btn-toggle-timer { background-color: #2ecc71; }
+        #btn-toggle-timer.paused { background-color: #f1c40f; color: #000; }
+        #btn-reset-timer { background-color: #e74c3c; }
     </style>
 </head>
 <body>
 
-    <div class="widget-container" id="main-widget">
-        <div class="rec-box"><span class="rec-dot"></span>Aufnahme läuft</div>
-        
-        <div class="info-text">
-            <span class="lbl-fortschritt" id="lbl-fortschritt-text">Fortschritt:</span> 
-            <span class="wrt-fortschritt" id="display-stand">0</span> / 
-            <span class="wrt-fortschritt" id="display-ziel">100</span> 
-            <span class="text-prozent" id="display-prozent">(0%)</span>
-        </div>
+<div id="admin-panel">
+    <h3>Widget Steuerung</h3>
+    
+    <div class="panel-section">Sichtbarkeit (Ein-/Ausblenden)</div>
+    <div class="checkbox-group">
+        <input type="checkbox" id="check-show-rec" checked onchange="updateLive()">
+        <label for="check-show-rec">🔴 REC-Punkt</label>
+    </div>
+    <div class="checkbox-group">
+        <input type="checkbox" id="check-show-kreis" checked onchange="updateLive()">
+        <label for="check-show-kreis">⭕ Fortschritts-Kreis (Hauptring)</label>
+    </div>
+    <div class="checkbox-group">
+        <input type="checkbox" id="check-show-timerring" checked onchange="updateLive()">
+        <label for="check-show-timerring">⏱️ Timer-Kreis (Innenring)</label>
+    </div>
+    <div class="checkbox-group">
+        <input type="checkbox" id="check-show-inner-text" checked onchange="updateLive()">
+        <label for="check-show-inner-text">🔢 Texte im Kreis (Fortschritt/%)</label>
+    </div>
+    <div class="checkbox-group">
+        <input type="checkbox" id="check-show-quest" checked onchange="updateLive()">
+        <label for="check-show-quest">🗺️ Quest-Zeile</label>
+    </div>
+    <div class="checkbox-group">
+        <input type="checkbox" id="check-show-folge" checked onchange="updateLive()">
+        <label for="check-show-folge">🔢 Folgen-Nummer unten</label>
+    </div>
+    <div class="checkbox-group">
+        <input type="checkbox" id="check-show-kapitel" checked onchange="updateLive()">
+        <label for="check-show-kapitel">📚 Kapitel-Zeile</label>
+    </div>
 
-        <div class="progress-container">
-            <div class="progress-bar" id="main-progress"></div>
+    <div class="panel-section">Texte &amp; Werte einstellen</div>
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label>REC Text</label>
+            <input type="text" id="input-text-rec" value="● REC" oninput="updateLive()">
         </div>
-
-        <div class="info-text">
-            <span class="lbl-quest" id="display-label-quest">Quest:</span> 
-            <span class="wrt-quest" id="display-quest">-</span>
-        </div>
-
-        <div class="info-text">
-            <span class="lbl-folge">Folge:</span> 
-            <span class="wrt-folge" id="display-folge-nr">0</span> 
-            <span class="lbl-kapitel" id="display-label-kapitel"> Kapitel:</span> 
-            <span class="wrt-kapitel" id="display-kapitel-info">0 - -</span>
-        </div>
-
-        <div class="timer-container" id="timer-widget">
-            <svg class="svg-circle" width="180" height="180">
-                <circle class="circle-bg" cx="90" cy="90" r="75"></circle>
-                <circle class="circle-progress" id="timer-progress" cx="90" cy="90" r="75" stroke-dasharray="471.23" stroke-dashoffset="0"></circle>
-            </svg>
-            <div class="timer-text" id="timer-display">00:00</div>
+        <div class="form-group" style="flex: 1;">
+            <label>Farbe</label>
+            <input type="color" id="input-color-text-rec" value="#ff4757" oninput="updateLive()">
         </div>
     </div>
 
-    <input type="hidden" id="input-stand" value="19">
-    <input type="hidden" id="input-ziel" value="100">
-    <input type="hidden" id="input-dauer" value="31">
-    <input type="hidden" id="input-label-quest" value="Quest:">
-    <input type="hidden" id="input-quest" value="Nicks Anhänger">
-    <input type="hidden" id="input-label-kapitel" value="Kapitel:">
-    <input type="hidden" id="input-kapitel-nr" value="5">
-    <input type="hidden" id="input-kapitel-name" value="Vegetarier">
-    <input type="hidden" id="input-vis-main" value="visible">
-    <input type="hidden" id="input-vis-timer" value="visible">
+    <div class="form-group">
+        <label>Kreis Label-Text</label>
+        <input type="text" id="input-text-fortschritt" value="Fortschritt" oninput="updateLive()">
+    </div>
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label>Farbe Label</label>
+            <input type="color" id="input-color-text-label-fortschritt" value="#1aafeb" oninput="updateLive()">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Farbe Werte</label>
+            <input type="color" id="input-color-text-werte-fortschritt" value="#ffffff" oninput="updateLive()">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Farbe %</label>
+            <input type="color" id="input-color-text-prozent" value="#2ecc71" oninput="updateLive()">
+        </div>
+    </div>
 
-    <script>
-        let secondsLeft = 0;
-        let isTimerRunning = true;
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label>Aktueller Stand</label>
+            <input type="number" id="input-stand" value="38" oninput="updateLive()">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Ziel / Max</label>
+            <input type="number" id="input-ziel" value="100" oninput="updateLive()">
+        </div>
+    </div>
 
-        function updateLive() {
-            // Werte aus versteckten Inputs auslesen
-            const stand = parseInt(document.getElementById('input-stand').value) || 0;
-            const ziel = parseInt(document.getElementById('input-ziel').value) || 100;
-            const labelQuest = document.getElementById('input-label-quest').value;
-            const quest = document.getElementById('input-quest').value;
-            const labelKapitel = document.getElementById('input-label-kapitel').value;
-            const kapNr = document.getElementById('input-kapitel-nr').value;
-            const kapName = document.getElementById('input-kapitel-name').value;
-            const visMain = document.getElementById('input-vis-main').value;
-            const visTimer = document.getElementById('input-vis-timer').value;
+    <div class="form-group">
+        <label>Dauer pro Folge (Minuten)</label>
+        <input type="number" id="input-dauer" value="31" oninput="resetTimerOnInput()">
+    </div>
+    <div id="timer-display" class="timer-info">Restzeit bis Wechsel: --:--</div>
+    <div class="timer-btn-container">
+        <button id="btn-toggle-timer" class="timer-btn" onclick="toggleTimer()">Pause</button>
+        <button id="btn-reset-timer" class="timer-btn" onclick="resetTimerOnInput()">Reset</button>
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label>Quest Label</label>
+            <input type="text" id="input-label-quest" value="Quest:" oninput="updateLive()">
+        </div>
+        <div class="form-group" style="flex: 1.5;">
+            <label>Quest Text</label>
+            <input type="text" id="input-quest" value="Nicks Anhänger" oninput="updateLive()">
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label>Farbe Label</label>
+            <input type="color" id="input-color-text-label-quest" value="#ffffff" oninput="updateLive()">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Farbe Inhalt</label>
+            <input type="color" id="input-color-text-wert-quest" value="#2ecc71" oninput="updateLive()">
+        </div>
+    </div>
 
-            // Sichtbarkeiten regeln
-            document.getElementById('main-widget').style.display = (visMain === 'hidden') ? 'none' : 'block';
-            document.getElementById('timer-widget').style.display = (visTimer === 'hidden') ? 'none' : 'inline-block';
+    <div class="form-group">
+        <label>Folgen Haupt-Label</label>
+        <input type="text" id="input-text-folge-label" value="Folge" oninput="updateLive()">
+    </div>
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label>Farbe Label</label>
+            <input type="color" id="input-color-text-folge-label" value="#1aafeb" oninput="updateLive()">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Farbe Wert</label>
+            <input type="color" id="input-color-text-folge-wert" value="#2ecc71" oninput="updateLive()">
+        </div>
+    </div>
 
-            // HTML Ansichten befüllen
-            document.getElementById('display-stand').innerText = stand;
-            document.getElementById('display-ziel').innerText = ziel;
-            document.getElementById('display-label-quest').innerText = labelQuest;
-            document.getElementById('display-quest').innerText = quest;
-            document.getElementById('display-label-kapitel').innerText = " " + labelKapitel;
-            document.getElementById('display-folge-nr').innerText = stand;
-            document.getElementById('display-kapitel-info').innerText = `${kapNr} - ${kapName}`;
+    <div class="form-row">
+        <div class="form-group" style="flex: 1.2;">
+            <label>Kapitel Label</label>
+            <input type="text" id="input-label-kapitel" value="Kapitel:" oninput="updateLive()">
+        </div>
+        <div class="form-group" style="flex: 0.8;">
+            <label>Kapitel Nr.</label>
+            <input type="number" id="input-kapitel-nr" value="13" oninput="updateLive()">
+        </div>
+        <div class="form-group" style="flex: 1.5;">
+            <label>Kapitel Name</label>
+            <input type="text" id="input-kapitel-name" value="Vegetarier" oninput="updateLive()">
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label>Farbe Label</label>
+            <input type="color" id="input-color-text-label-kapitel" value="#1aafeb" oninput="updateLive()">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Farbe Inhalt</label>
+            <input type="color" id="input-color-text-wert-kapitel" value="#2ecc71" oninput="updateLive()">
+        </div>
+    </div>
 
-            // Prozent & Progressberechnung
-            const prozent = ziel > 0 ? Math.round((stand / ziel) * 100) : 0;
-            document.getElementById('display-prozent').innerText = `(${prozent}%)`;
-            document.getElementById('main-progress').style.width = `${Math.min(prozent, 100)}%`;
-        }
+    <div class="panel-section">Ringe (Farbeinstellungen)</div>
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label>Neon-Glow Basis</label>
+            <input type="color" id="input-color-neon" value="#2ecc71" oninput="updateLive()">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Fortschritts-Ring</label>
+            <input type="color" id="input-color-progress" value="#2ecc71" oninput="updateLive()">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Timer-Ring</label>
+            <input type="color" id="input-color-timer" value="#ffb300" oninput="updateLive()">
+        </div>
+    </div>
 
-        function setupTimer() {
-            const dauerMinuten = parseInt(document.getElementById('input-dauer').value) || 31;
-            const storageKey = 'widget_v3_timer_seconds';
-            let saved = localStorage.getItem(storageKey);
+    <p style="margin: 5px 0 0 0; font-size: 10px; color: #2ecc71; text-align: center; font-weight: bold;">Werte &amp; Farben werden live gesichert!</p>
+</div>
+
+<div class="widget-container">
+    <div class="rec-dot" id="live-rec-container">● REC</div>
+
+    <div class="progress-box" id="live-progress-box">
+        <svg width="240" height="240">
+            <circle id="live-outer-ring" class="outer-ring" cx="120" cy="120" r="115"></circle>
+            <circle id="live-track-main" class="track" cx="120" cy="120" r="90"></circle>
+            <circle id="progress" class="progress-bar" cx="120" cy="120" r="90"></circle>
+            <circle id="live-track-timer" class="track" cx="120" cy="120" r="75" style="stroke-width: 4; opacity: 0.2;"></circle>
+            <circle id="timer-progress" class="timer-bar" cx="120" cy="120" r="75"></circle>
+        </svg>
+        <div class="inner-content" id="live-inner-content">    
+            <div class="status-label" id="live-text-fortschritt">Fortschritt</div>
+            <div class="ratio"><span id="curr-val">0</span> / <span id="max-val">100</span></div>
+            <div class="percent-display"><span id="perc-val">0</span>%</div>
+        </div>
+    </div>
+    
+    <h2 id="live-quest-container" style="margin: 15px 0 0 0; letter-spacing: 2px; font-size: 1.5rem; text-shadow: var(--text-shadow); font-family: var(--font-main);">
+        <span id="live-label-quest" style="color: var(--color-text-label-quest);">Quest:</span> <span id="live-quest" style="color: var(--color-text-wert-quest);">Nicks Anhänger</span>
+    </h2>
+    
+    <div class="footer-info" id="live-folge-container">
+        <div class="episode-title"><span id="live-text-folge-label">Folge</span> <span class="ep-mark">#</span><span class="ep-val" id="ep-num">19</span></div>
+    </div>
+    
+    <h2 id="live-kapitel-container" style="margin:0; letter-spacing: 2px; font-family: var(--font-main); font-size: 1.5rem; text-shadow: var(--text-shadow);">
+        <span style="color: var(--color-text-label-kapitel);"><span id="live-label-kapitel">Kapitel:</span> <span id="live-kapitel-nr">5</span>: </span>
+        <span id="live-kapitel-name" style="color: var(--color-text-wert-kapitel);">Vegetarier</span>
+    </h2>
+</div>
+
+<script>
+    let secondsLeft = 0;
+    let timerInterval = null;
+    let isTimerRunning = true;
+
+    window.onload = () => {
+        if (localStorage.getItem('widget_v3_stand')) {
+            document.getElementById('input-stand').value = localStorage.getItem('widget_v3_stand');
+            document.getElementById('input-ziel').value = localStorage.getItem('widget_v3_ziel') || "100";
+            document.getElementById('input-quest').value = localStorage.getItem('widget_v3_quest');
+            document.getElementById('input-label-quest').value = localStorage.getItem('widget_v3_label_quest') || "Quest:";
+            document.getElementById('input-label-kapitel').value = localStorage.getItem('widget_v3_label_kapitel') || "Kapitel:";
+            document.getElementById('input-kapitel-nr').value = localStorage.getItem('widget_v3_kapitel_nr') || "5";
+            document.getElementById('input-kapitel-name').value = localStorage.getItem('widget_v3_kapitel_name') || "Vegetarier";
+            document.getElementById('input-dauer').value = localStorage.getItem('widget_v3_dauer') || "31";
             
-            if (saved !== null) {
-                secondsLeft = parseInt(saved);
-            } else {
-                secondsLeft = dauerMinuten * 60;
-                localStorage.setItem(storageKey, secondsLeft);
-            }
-        }
+            // Texte laden
+            document.getElementById('input-text-rec').value = localStorage.getItem('widget_v3_text_rec') || "● REC";
+            document.getElementById('input-text-fortschritt').value = localStorage.getItem('widget_v3_text_fortschritt') || "Fortschritt";
+            document.getElementById('input-text-folge-label').value = localStorage.getItem('widget_v3_text_folge_label') || "Folge";
 
-        function updateTimerDisplay() {
-            const display = document.getElementById('timer-display');
-            const mins = Math.floor(secondsLeft / 60);
-            const secs = secondsLeft % 60;
-            display.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        }
-
-        function updateTimerCircle() {
-            const dauerMinuten = parseInt(document.getElementById('input-dauer').value) || 31;
-            const totalSeconds = dauerMinuten * 60;
-            const timerCircle = document.getElementById('timer-progress');
+            // Ring-Farben laden
+            document.getElementById('input-color-neon').value = localStorage.getItem('widget_v3_color_neon') || "#2ecc71";
+            document.getElementById('input-color-progress').value = localStorage.getItem('widget_v3_color_progress') || "#2ecc71";
+            document.getElementById('input-color-timer').value = localStorage.getItem('widget_v3_color_timer') || "#ffb300";
             
-            if (timerCircle && totalSeconds > 0) {
-                const circumference = 2 * Math.PI * 75;
-                const factor = Math.max(0, Math.min(secondsLeft / totalSeconds, 1));
-                timerCircle.style.strokeDashoffset = circumference - (factor * circumference);
+            // Text-Farben laden
+            document.getElementById('input-color-text-rec').value = localStorage.getItem('widget_v3_col_rec') || "#ff4757";
+            document.getElementById('input-color-text-label-fortschritt').value = localStorage.getItem('widget_v3_col_lbl_fort') || "#1aafeb";
+            document.getElementById('input-color-text-werte-fortschritt').value = localStorage.getItem('widget_v3_col_wrt_fort') || "#ffffff";
+            document.getElementById('input-color-text-prozent').value = localStorage.getItem('widget_v3_col_proz') || "#2ecc71";
+            document.getElementById('input-color-text-label-quest').value = localStorage.getItem('widget_v3_col_lbl_qst') || "#ffffff";
+            document.getElementById('input-color-text-wert-quest').value = localStorage.getItem('widget_v3_col_wrt_qst') || "#2ecc71";
+            document.getElementById('input-color-text-folge-label').value = localStorage.getItem('widget_v3_col_lbl_flg') || "#1aafeb";
+            document.getElementById('input-color-text-folge-wert').value = localStorage.getItem('widget_v3_col_wrt_flg') || "#2ecc71";
+            document.getElementById('input-color-text-label-kapitel').value = localStorage.getItem('widget_v3_col_lbl_kap') || "#1aafeb";
+            document.getElementById('input-color-text-wert-kapitel').value = localStorage.getItem('widget_v3_col_wrt_kap') || "#2ecc71";
+
+            // Sichtbarkeiten laden
+            if (localStorage.getItem('widget_v3_show_rec') !== null) document.getElementById('check-show-rec').checked = localStorage.getItem('widget_v3_show_rec') === 'true';
+            if (localStorage.getItem('widget_v3_show_kreis') !== null) document.getElementById('check-show-kreis').checked = localStorage.getItem('widget_v3_show_kreis') === 'true';
+            if (localStorage.getItem('widget_v3_show_timerring') !== null) document.getElementById('check-show-timerring').checked = localStorage.getItem('widget_v3_show_timerring') === 'true';
+            if (localStorage.getItem('widget_v3_show_inner-text') !== null) document.getElementById('check-show-inner-text').checked = localStorage.getItem('widget_v3_show_inner-text') === 'true';
+            if (localStorage.getItem('widget_v3_show_quest') !== null) document.getElementById('check-show-quest').checked = localStorage.getItem('widget_v3_show_quest') === 'true';
+            if (localStorage.getItem('widget_v3_show_folge') !== null) document.getElementById('check-show-folge').checked = localStorage.getItem('widget_v3_show_folge') === 'true';
+            if (localStorage.getItem('widget_v3_show_kapitel') !== null) document.getElementById('check-show-kapitel').checked = localStorage.getItem('widget_v3_show_kapitel') === 'true';
+
+            if (localStorage.getItem('widget_v3_timer_running') !== null) {
+                isTimerRunning = localStorage.getItem('widget_v3_timer_running') === 'true';
             }
         }
 
-        // Taktgeber für OBS Ansichten
-        setInterval(() => {
-            updateLive();
-            if (isTimerRunning && secondsLeft > 0) {
-                secondsLeft--;
-                localStorage.setItem('widget_v3_timer_seconds', secondsLeft);
-                updateTimerDisplay();
-                updateTimerCircle();
-            }
-        }, 1000);
+        if (window.location.search.includes('control=1')) {
+            const style = document.createElement('style');
+            style.innerHTML = '#admin-panel { display: block !important; }';
+            document.head.appendChild(style);
+        }
 
-        window.onload = () => {
-            updateLive();
-            setupTimer();
+        initTimer();
+        updateLive();
+    };
+
+    function synchronizeAttributes() {
+        const ids = ['input-stand', 'input-ziel', 'input-quest', 'input-label-quest', 'input-label-kapitel', 'input-kapitel-nr', 'input-kapitel-name', 'input-dauer', 'input-color-neon', 'input-color-progress', 'input-color-timer', 'check-show-rec', 'check-show-kreis', 'check-show-timerring', 'check-show-inner-text', 'check-show-quest', 'check-show-folge', 'check-show-kapitel', 'input-text-rec', 'input-text-fortschritt', 'input-text-folge-label', 'input-color-text-rec', 'input-color-text-label-fortschritt', 'input-color-text-werte-fortschritt', 'input-color-text-prozent', 'input-color-text-label-quest', 'input-color-text-wert-quest', 'input-color-text-folge-label', 'input-color-text-folge-wert', 'input-color-text-label-kapitel', 'input-color-text-wert-kapitel'];
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                if(el.type === 'checkbox') {
+                    if(el.checked) el.setAttribute('checked', 'checked');
+                    else el.removeAttribute('checked');
+                } else {
+                    el.setAttribute('value', el.value);
+                }
+            }
+        });
+    }
+
+    function updateLive() {
+        const stand = parseInt(document.getElementById('input-stand').value) || 0;
+        const ziel = parseInt(document.getElementById('input-ziel').value) || 100;
+        const labelQuest = document.getElementById('input-label-quest').value;
+        const questInput = document.getElementById('input-quest').value;
+        const labelKapitel = document.getElementById('input-label-kapitel').value;
+        const kapitelNr = document.getElementById('input-kapitel-nr').value;
+        const kapitelName = document.getElementById('input-kapitel-name').value;
+        const dauer = parseInt(document.getElementById('input-dauer').value) || 31;
+        
+        // Texte
+        const txtRec = document.getElementById('input-text-rec').value;
+        const txtFortschritt = document.getElementById('input-text-fortschritt').value;
+        const txtFolgeLabel = document.getElementById('input-text-folge-label').value;
+
+        // Ring-Farben
+        const colNeon = document.getElementById('input-color-neon').value;
+        const colProgress = document.getElementById('input-color-progress').value;
+        const colTimer = document.getElementById('input-color-timer').value;
+
+        // Text-Farben abrufen
+        const cRec = document.getElementById('input-color-text-rec').value;
+        const cLblFort = document.getElementById('input-color-text-label-fortschritt').value;
+        const cWrtFort = document.getElementById('input-color-text-werte-fortschritt').value;
+        const cProz = document.getElementById('input-color-text-prozent').value;
+        const cLblQst = document.getElementById('input-color-text-label-quest').value;
+        const cWrtQst = document.getElementById('input-color-text-wert-quest').value;
+        const cLblFlg = document.getElementById('input-color-text-folge-label').value;
+        const cWrtFlg = document.getElementById('input-color-text-folge-wert').value;
+        const cLblKap = document.getElementById('input-color-text-label-kapitel').value;
+        const cWrtKap = document.getElementById('input-color-text-wert-kapitel').value;
+
+        // Sichtbarkeiten
+        const showRec = document.getElementById('check-show-rec').checked;
+        const showKreis = document.getElementById('check-show-kreis').checked;
+        const showTimerring = document.getElementById('check-show-timerring').checked;
+        const showInnerText = document.getElementById('check-show-inner-text').checked;
+        const showQuest = document.getElementById('check-show-quest').checked;
+        const showFolge = document.getElementById('check-show-folge').checked;
+        const showKapitel = document.getElementById('check-show-kapitel').checked;
+
+        const percent = Math.round((stand / ziel) * 100) || 0;
+
+        // CSS Variablen live überschreiben
+        document.documentElement.style.setProperty('--color-progress-bar', colProgress);
+        document.documentElement.style.setProperty('--color-timer-bar', colTimer);
+        document.documentElement.style.setProperty('--neon-green', colNeon);
+        
+        // Textfarben setzen
+        document.documentElement.style.setProperty('--color-text-rec', cRec);
+        document.documentElement.style.setProperty('--color-text-label-fortschritt', cLblFort);
+        document.documentElement.style.setProperty('--color-text-werte-fortschritt', cWrtFort);
+        document.documentElement.style.setProperty('--color-text-prozent', cProz);
+        document.documentElement.style.setProperty('--color-text-label-quest', cLblQst);
+        document.documentElement.style.setProperty('--color-text-wert-quest', cWrtQst);
+        document.documentElement.style.setProperty('--color-text-folge-label', cLblFlg);
+        document.documentElement.style.setProperty('--color-text-folge-wert', cWrtFlg);
+        document.documentElement.style.setProperty('--color-text-label-kapitel', cLblKap);
+        document.documentElement.style.setProperty('--color-text-wert-kapitel', cWrtKap);
+        
+        // Glow-Effekt berechnen
+        const r = parseInt(colNeon.substr(1,2), 16);
+        const g = parseInt(colNeon.substr(3,2), 16);
+        const b = parseInt(colNeon.substr(5,2), 16);
+        document.documentElement.style.setProperty('--neon-glow', `rgba(${r}, ${g}, ${b}, 0.8)`);
+
+        // Sichtbarkeitseinstellungen live anwenden
+        document.getElementById('live-rec-container').style.display = showRec ? 'block' : 'none';
+        document.getElementById('live-inner-content').style.display = showInnerText ? 'block' : 'none';
+        document.getElementById('live-quest-container').style.display = showQuest ? 'block' : 'none';
+        document.getElementById('live-folge-container').style.display = showFolge ? 'block' : 'none';
+        document.getElementById('live-kapitel-container').style.display = showKapitel ? 'block' : 'none';
+
+        if (!showKreis && !showTimerring) {
+            document.getElementById('live-progress-box').style.display = 'none';
+        } else {
+            document.getElementById('live-progress-box').style.display = 'block';
+            document.getElementById('live-outer-ring').style.visibility = showKreis ? 'visible' : 'hidden';
+            document.getElementById('live-track-main').style.visibility = showKreis ? 'visible' : 'hidden';
+            document.getElementById('progress').style.visibility = showKreis ? 'visible' : 'hidden';
+            document.getElementById('live-track-timer').style.visibility = showTimerring ? 'visible' : 'hidden';
+            document.getElementById('timer-progress').style.visibility = showTimerring ? 'visible' : 'hidden';
+        }
+
+        synchronizeAttributes();
+
+        // Texte live ins Widget schreiben
+        document.getElementById('live-rec-container').innerText = txtRec;
+        document.getElementById('live-text-fortschritt').innerText = txtFortschritt;
+        document.getElementById('live-text-folge-label').innerText = txtFolgeLabel;
+
+        document.getElementById('live-label-quest').innerText = labelQuest;
+        document.getElementById('live-quest').innerText = questInput;
+        document.getElementById('live-label-kapitel').innerText = labelKapitel;
+        document.getElementById('live-kapitel-nr').innerText = kapitelNr;
+        document.getElementById('live-kapitel-name').innerText = kapitelName;
+        
+        document.getElementById('max-val').innerText = ziel;
+        document.getElementById('curr-val').innerText = stand;
+        document.getElementById('perc-val').innerText = percent;
+        document.getElementById('ep-num').innerText = stand;
+
+        // Ring-Berechnung
+        const circumference = 2 * Math.PI * 90;
+        const offset = circumference - (Math.min(percent, 100) / 100 * circumference);
+        document.getElementById('progress').style.strokeDashoffset = offset;
+
+        updateTimerCircle();
+
+        // Im LocalStorage sichern
+        localStorage.setItem('widget_v3_stand', stand);
+        localStorage.setItem('widget_v3_ziel', ziel);
+        localStorage.setItem('widget_v3_label_quest', labelQuest);
+        localStorage.setItem('widget_v3_quest', questInput);
+        localStorage.setItem('widget_v3_label_kapitel', labelKapitel);
+        localStorage.setItem('widget_v3_kapitel_nr', kapitelNr);
+        localStorage.setItem('widget_v3_kapitel_name', kapitelName);
+        localStorage.setItem('widget_v3_dauer', dauer);
+        
+        localStorage.setItem('widget_v3_text_rec', txtRec);
+        localStorage.setItem('widget_v3_text_fortschritt', txtFortschritt);
+        localStorage.setItem('widget_v3_text_folge-label', txtFolgeLabel);
+
+        localStorage.setItem('widget_v3_color_neon', colNeon);
+        localStorage.setItem('widget_v3_color_progress', colProgress);
+        localStorage.setItem('widget_v3_color_timer', colTimer);
+
+        localStorage.setItem('widget_v3_col_rec', cRec);
+        localStorage.setItem('widget_v3_col_lbl_fort', cLblFort);
+        localStorage.setItem('widget_v3_col_wrt_fort', cWrtFort);
+        localStorage.setItem('widget_v3_col_proz', cProz);
+        localStorage.setItem('widget_v3_col_lbl_qst', cLblQst);
+        localStorage.setItem('widget_v3_col_wrt_qst', cWrtQst);
+        localStorage.setItem('widget_v3_col_lbl_flg', cLblFlg);
+        localStorage.setItem('widget_v3_col_wrt_flg', cWrtFlg);
+        localStorage.setItem('widget_v3_col_lbl_kap', cLblKap);
+        localStorage.setItem('widget_v3_col_wrt_kap', cWrtKap);
+
+        localStorage.setItem('widget_v3_show_rec', showRec);
+        localStorage.setItem('widget_v3_show_kreis', showKreis);
+        localStorage.setItem('widget_v3_show_timerring', showTimerring);
+        localStorage.setItem('widget_v3_show_inner-text', showInnerText);
+        localStorage.setItem('widget_v3_show_quest', showQuest);
+        localStorage.setItem('widget_v3_show_folge', showFolge);
+        localStorage.setItem('widget_v3_show_kapitel', showKapitel);
+    }
+
+    // TIMER LOGIK
+    function initTimer() {
+        const dauerMinuten = parseInt(document.getElementById('input-dauer').value) || 31;
+        const savedTime = localStorage.getItem('widget_v3_timer_seconds');
+        
+        if (savedTime !== null && parseInt(savedTime) > 0) {
+            secondsLeft = parseInt(savedTime);
+        } else {
+            secondsLeft = dauerMinuten * 60;
+        }
+
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(tick, 1000);
+        
+        updateButtonUI();
+        updateTimerDisplay();
+    }
+
+    function toggleTimer() {
+        isTimerRunning = !isTimerRunning;
+        localStorage.setItem('widget_v3_timer_running', isTimerRunning);
+        updateButtonUI();
+        updateTimerDisplay();
+    }
+
+    function updateButtonUI() {
+        const btn = document.getElementById('btn-toggle-timer');
+        if (isTimerRunning) {
+            btn.innerText = "Pause";
+            btn.classList.remove('paused');
+        } else {
+            btn.innerText = "Start";
+            btn.classList.add('paused');
+        }
+    }
+
+    function resetTimerOnInput() {
+        const dauerMinuten = parseInt(document.getElementById('input-dauer').value) || 31;
+        secondsLeft = dauerMinuten * 60;
+        localStorage.setItem('widget_v3_timer_seconds', secondsLeft);
+        localStorage.setItem('widget_v3_dauer', dauerMinuten);
+        updateLive();
+        updateTimerDisplay();
+    }
+
+    function tick() {
+        if (!isTimerRunning) return;
+
+        if (secondsLeft > 0) {
+            secondsLeft--;
+            localStorage.setItem('widget_v3_timer_seconds', secondsLeft);
             updateTimerDisplay();
             updateTimerCircle();
-        };
-    </script>
+        } else {
+            let currentStand = parseInt(document.getElementById('input-stand').value) || 0;
+            currentStand++;
+            document.getElementById('input-stand').value = currentStand;
+            
+            const dauerMinuten = parseInt(document.getElementById('input-dauer').value) || 31;
+            secondsLeft = dauerMinuten * 60;
+            localStorage.setItem('widget_v3_timer_seconds', secondsLeft);
+            
+            updateLive();
+            updateTimerDisplay();
+        }
+    }
+
+    function updateTimerDisplay() {
+        const display = document.getElementById('timer-display');
+        const mins = Math.floor(secondsLeft / 60);
+        const secs = secondsLeft % 60;
+        const formattedTime = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        
+        if (isTimerRunning) {
+            display.innerText = `Restzeit bis Wechsel: ${formattedTime}`;
+            display.style.color = document.getElementById('input-color-timer').value;
+        } else {
+            display.innerText = `Wechsel pausiert bei: ${formattedTime}`;
+            display.style.color = "#e74c3c";
+        }
+    }
+
+    function updateTimerCircle() {
+        const dauerMinuten = parseInt(document.getElementById('input-dauer').value) || 31;
+        const totalSeconds = dauerMinuten * 60;
+        const timerCircle = document.getElementById('timer-progress');
+        
+        if (timerCircle && totalSeconds > 0) {
+            const circumference = 2 * Math.PI * 75; 
+            const factor = Math.max(0, Math.min(secondsLeft / totalSeconds, 1));
+            const offset = circumference - (factor * circumference);
+            timerCircle.style.strokeDashoffset = offset;
+        }
+    }
+</script>
+
 </body>
 </html>
