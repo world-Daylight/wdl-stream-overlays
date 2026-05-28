@@ -5,10 +5,13 @@
     <title>Overlays-start - Live Overlay &amp; Control Panel</title>
     <style>
         :root {
+            /* Dynamische Farb- und Designvariablen */
             --farm-green: #2ecc71;
             --farm-blue: #1aafeb;
             --neon-glow: rgba(46, 204, 113, 0.8);
             --text-shadow: 2px 2px 8px rgba(0, 0, 0, 1);
+            
+            /* Dynamische Maße */
             --widget-width: 1920px;
             --widget-height: 1080px;
 
@@ -40,149 +43,1101 @@
             color: white;
         }
 
+        /* LIVE-WIDGET CONTAINER */
         .main-container {
+            position: relative;
             width: var(--widget-width);
             height: var(--widget-height);
-            position: relative;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            overflow: hidden;
             box-sizing: border-box;
+            background-color: transparent;
+            z-index: 1;
         }
 
-        /* OBERE LEISTE */
-        .top-bar {
+        /* Hintergrund-Video / WebM Element */
+        .bg-video-element {
             position: absolute;
-            top: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid var(--farm-green);
-            box-shadow: 0 0 15px var(--neon-glow);
-            border-radius: 12px;
-            padding: 12px 30px;
-            display: flex;
-            align-items: center;
-            gap: 25px;
-            white-space: nowrap;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            display: none;
         }
 
-        .rec-indicator {
-            color: var(--color-rec);
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .bird {
+            position: absolute;
+            width: 4px; height: 2px;
+            background: black;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: fly 20s linear infinite;
+            z-index: 2;
+        }
+
+        @keyframes fly {
+            from { left: -50px; top: 100px; transform: scale(1); }
+            to { left: calc(var(--widget-width) + 50px); top: 150px; transform: scale(0.5); }
+        }
+
+        /* Oben Links: Header-Bereich */
+        .header-info {
+            position: absolute;
+            top: 40px; left: 40px;
             text-shadow: var(--text-shadow);
+            z-index: 3;
         }
 
         .rec-dot {
-            width: 10px;
-            height: 10px;
-            background-color: var(--color-rec);
-            border-radius: 50%;
-            animation: blink 1.5s infinite;
+            color: var(--color-rec);
+            font-weight: bold;
+            animation: blink 1s infinite;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        /* Oben Rechts: Kreise-Anzeige (Folgen-Fortschritt & Timer) */
+        .widgets-group {
+            position: absolute;
+            top: 40px; right: 60px;
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+            z-index: 3;
+        }
+
+        .progress-box {
+            text-align: center;
+            text-shadow: var(--text-shadow);
+            position: relative;
+        }
+
+        svg { 
+            transform: rotate(-90deg); 
+            filter: drop-shadow(0 0 15px var(--neon-glow)); 
+        }
+          
+        .bar {
+            stroke: var(--farm-green);
+            stroke-width: 12;
+            stroke-linecap: round;
+            stroke-dasharray: 440; 
+            stroke-dashoffset: 440;
+            transition: stroke-dashoffset 0.5s ease-in-out;
+        }
+
+        .bar-timer {
+            stroke: var(--farm-blue);
+            stroke-width: 12;
+            stroke-linecap: round;
+            stroke-dasharray: 440;
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 1s linear;
+        }
+
+        /* Quest-Text unterhalb der Kreise */
+        .quest-display-container {
+            margin-top: 15px;
+            text-align: right;
+            max-width: 500px;
+            text-shadow: var(--text-shadow);
+        }
+
+        /* Unten Mitte: Gesamtfortschritt */
+        .footer-status {
+            position: absolute;
+            bottom: 40px;
+            width: 100%;
+            text-align: center;
+            font-size: 2.2rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-shadow: var(--text-shadow);
+            z-index: 3;
         }
 
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
 
-        /* RECHTE INFOKARTEN */
-        .right-panel {
-            position: absolute;
-            top: 120px;
-            right: 40px;
+        /* ==========================================
+            ADMIN-PANEL STYLES
+           ========================================== */
+        #admin-panel {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            width: 410px;
+            max-height: 95vh;
+            overflow-y: auto;
+            background: rgba(20, 20, 20, 0.98);
+            border: 2px solid var(--farm-blue);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.7);
+            z-index: 9999;
+            font-family: Arial, sans-serif;
+            color: #fff;
+            display: none;
+        }
+
+        @media (pointer: fine), (pointer: coarse) {
+            body:hover #admin-panel, 
+            #admin-panel:focus-within {
+                display: block;
+            }
+        }
+
+        #admin-panel h3 {
+            margin: 0 0 12px 0;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--farm-blue);
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+
+        .panel-section {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: #ff0055;
+            margin: 12px 0 6px 0;
+            font-weight: bold;
+            border-bottom: 1px dashed #444;
+            padding-bottom: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+            color: #aaa;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 6px;
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: white;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+        }
+
+        .form-group input[type="color"] {
+            padding: 2px;
+            height: 30px;
+            cursor: pointer;
+        }
+
+        /* Checkbox Styling */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            background: #1a1a1a;
+            padding: 6px;
+            border-radius: 4px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            display: inline;
+            margin: 0;
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: #ddd;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--farm-green);
+            outline: none;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .color-picker-label {
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            width: 380px;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: #ccc;
+            text-align: center;
+            flex: 1;
         }
 
-        .info-card {
-            background: rgba(0, 0, 0, 0.85);
-            border-left: 5px solid var(--farm-blue);
-            border-top: 1px solid rgba(255,255,255,0.1);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            border-right: 1px solid rgba(255,255,255,0.1);
-            border-radius: 4px 12px 12px 4px;
-            padding: 20px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-            text-shadow: var(--text-shadow);
+        .color-picker-label input[type="color"] {
+            height: 25px;
+            margin-top: 3px;
         }
 
-        .card-title {
+        .btn-copy {
+            width: 100%;
+            padding: 10px;
+            background: #2ecc71;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
             font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 8px;
+            margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-copy:hover { background: #27ae60; }
+        
+        .timer-btn {
+            flex: 1;
+            padding: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            color: white;
         }
     </style>
 </head>
 <body>
 
-    <div class="main-container" id="widget-root">
-        <div class="top-bar" id="box-main">
-            <div class="rec-indicator"><span class="rec-dot"></span>REC</div>
-            <div style="color: var(--color-episode); font-weight: bold;">
-                EPISODE: <span style="color: var(--color-ep-number);" id="txt-folge">19</span>
-            </div>
-            <div style="color: var(--color-kapitel-label);">
-                KAPITEL <span id="txt-kap-nr">5</span>: <span style="color: var(--color-kapitel-name);" id="txt-kap-name">Vegetarier</span>
-            </div>
+<div id="admin-panel">
+    <h3>Overlays-start &amp; Control</h3>
+    
+    <div class="panel-section">Sichtbarkeit Links Oben</div>
+    <div class="form-row" style="flex-wrap: wrap;">
+        <div class="checkbox-group" style="flex: 1 1 45%;">
+            <input type="checkbox" id="check-show-rec" checked onchange="updateLive()">
+            <label for="check-show-rec">🔴 REC-Punkt</label>
         </div>
+        <div class="checkbox-group" style="flex: 1 1 45%;">
+            <input type="checkbox" id="check-show-episode" checked onchange="updateLive()">
+            <label for="check-show-episode">🔢 Episode-Text</label>
+        </div>
+        <div class="checkbox-group" style="flex: 1 1 95%;">
+            <input type="checkbox" id="check-show-kapitel" checked onchange="updateLive()">
+            <label for="check-show-kapitel">📚 Kapitel-Zeile</label>
+        </div>
+    </div>
 
-        <div class="right-panel">
-            <div class="info-card" id="box-quest">
-                <div class="card-title" style="color: var(--color-quest-label);">Aktuelle Quest</div>
-                <div style="font-size: 1.3rem; font-weight: bold; color: var(--color-quest-name);" id="txt-quest">Nicks Anhänger</div>
+    <div class="panel-section">Sichtbarkeit Rechts Oben (Kreise)</div>
+    <div class="form-row" style="flex-wrap: wrap;">
+        <div class="checkbox-group" style="flex: 1 1 45%;">
+            <input type="checkbox" id="check-show-folgenkreis" checked onchange="updateLive()">
+            <label for="check-show-folgenkreis">🔄 Folgen-Kreis</label>
+        </div>
+        <div class="checkbox-group" style="flex: 1 1 45%;">
+            <input type="checkbox" id="check-show-folgentext" checked onchange="updateLive()">
+            <label for="check-show-folgentext">🔢 Text im Kreis</label>
+        </div>
+        <div class="checkbox-group" style="flex: 1 1 45%;">
+            <input type="checkbox" id="check-show-timerkreis" checked onchange="updateLive()">
+            <label for="check-show-timerkreis">⏱️ Timer-Kreis</label>
+        </div>
+        <div class="checkbox-group" style="flex: 1 1 45%;">
+            <input type="checkbox" id="check-show-timertext" checked onchange="updateLive()">
+            <label for="check-show-timertext">⏳ Zeit im Kreis</label>
+        </div>
+        <div class="checkbox-group" style="flex: 1 1 95%;">
+            <input type="checkbox" id="check-show-quest" checked onchange="updateLive()">
+            <label for="check-show-quest">🗺️ Quest-Anzeige</label>
+        </div>
+    </div>
+
+    <div class="panel-section">Sichtbarkeit Unten</div>
+    <div class="form-row" style="flex-wrap: wrap;">
+        <div class="checkbox-group" style="flex: 1 1 45%;">
+            <input type="checkbox" id="check-show-game" checked onchange="updateLive()">
+            <label for="check-show-game">🎮 Spiel-Titel</label>
+        </div>
+        <div class="checkbox-group" style="flex: 1 1 45%;">
+            <input type="checkbox" id="check-show-fortschritt" checked onchange="updateLive()">
+            <label for="check-show-fortschritt">📊 Fortschritttext</label>
+        </div>
+    </div>
+
+    <div class="panel-section">Inhalte &amp; Kreis-Labels</div>
+    <div class="form-group">
+        <label>Spiel-Titel</label>
+        <input type="text" id="input-game" value="FARMER'S DYNASTY 2" oninput="updateLive()">
+    </div>
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label>Label REC-Punkt</label>
+            <input type="text" id="input-label-rec" value="● REC" oninput="updateLive()">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Label Folgenkreis text</label>
+            <input type="text" id="input-label-folgenkreis" value="FOLGE" oninput="updateLive()">
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label>Aktuelle Folge</label>
+            <input type="number" id="input-folge" value="20" oninput="updateLive()">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Gesamt-Ziel (Folgen)</label>
+            <input type="number" id="input-ziel" value="100" oninput="updateLive()">
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Label Gesamtfortschritt</label>
+        <input type="text" id="input-label-fortschritt" value="GESAMTFORTSCHRITT: {wert}% ERREICHT" oninput="updateLive()">
+    </div>
+    <div class="form-group">
+        <label>Gesamtfortschritt-Wert (in %)</label>
+        <input type="number" id="input-fortschritt" value="0" min="0" max="100" oninput="updateLive()">
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label>Label Quest-Typ</label>
+            <input type="text" id="input-label-quest" value="Quest:" oninput="updateLive()">
+        </div>
+        <div class="form-group" style="flex: 2;">
+            <label>Aktuelle Quest</label>
+            <input type="text" id="input-quest" value="Der Gutsherr Alle Hofgebäuden Reparieren" oninput="updateLive()">
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label>Label Kapitel-Typ</label>
+            <input type="text" id="input-label-kapitel" value="Kapitel:" oninput="updateLive()">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Kapitel Nr.</label>
+            <input type="text" id="input-kapitel-nr" value="5" oninput="updateLive()">
+        </div>
+        <div class="form-group" style="flex: 2;">
+            <label>Kapitel Name</label>
+            <input type="text" id="input-kapitel-name" value="Vegetarier" oninput="updateLive()">
+        </div>
+    </div>
+
+    <div class="panel-section">Exakte Text-Farben festlegen</div>
+    <div style="background: #111; padding: 10px; border-radius: 6px;">
+        <div class="form-row" style="margin-bottom: 8px;">
+            <div class="color-picker-label">🔴 REC<input type="color" id="color-picker-rec" value="#ff4757" oninput="updateLive()"></div>
+            <div class="color-picker-label">EPISODE Text<input type="color" id="color-picker-episode" value="#ffffff" oninput="updateLive()"></div>
+            <div class="color-picker-label">Folgen-Nr (Oben)<input type="color" id="color-picker-ep-number" value="#2ecc71" oninput="updateLive()"></div>
+        </div>
+        <div class="form-row" style="margin-bottom: 8px;">
+            <div class="color-picker-label">Kapitel-Typ<input type="color" id="color-picker-kapitel-label" value="#1aafeb" oninput="updateLive()"></div>
+            <div class="color-picker-label">Kapitel-Name<input type="color" id="color-picker-kapitel-name" value="#2ecc71" oninput="updateLive()"></div>
+            <div class="color-picker-label">Kreis-Label 'FOLGE'<input type="color" id="color-picker-label-folge" value="#ffffff" oninput="updateLive()"></div>
+        </div>
+        <div class="form-row" style="margin-bottom: 8px;">
+            <div class="color-picker-label">Kreis-Wert X/X<input type="color" id="color-picker-wert-folge" value="#ffffff" oninput="updateLive()"></div>
+            <div class="color-picker-label">Kreis-Label Timer<input type="color" id="color-picker-label-timer" value="#ffffff" oninput="updateLive()"></div>
+            <div class="color-picker-label">Kreis-Zeitwert<input type="color" id="color-picker-wert-timer" value="#1aafeb" oninput="updateLive()"></div>
+        </div>
+        <div class="form-row">
+            <div class="color-picker-label">Quest-Label<input type="color" id="color-picker-quest-label" value="#1aafeb" oninput="updateLive()"></div>
+            <div class="color-picker-label">Quest-Text<input type="color" id="color-picker-quest-name" value="#2ecc71" oninput="updateLive()"></div>
+            <div class="color-picker-label">Spiel-Titel<input type="color" id="color-picker-game" value="#ffffff" oninput="updateLive()"></div>
+            <div class="color-picker-label">Fortschritt-Fuss<input type="color" id="color-picker-fortschritt" value="#ffffff" oninput="updateLive()"></div>
+        </div>
+    </div>
+
+    <div class="panel-section">Automatik-Timer für Folge</div>
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label>Dauer (Minuten)</label>
+            <input type="number" id="input-dauer" value="31" oninput="updateTimerDuration()">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Status</label>
+            <div style="font-size:0.85rem; padding-top:8px; font-weight:bold; color:#ffb300;" id="admin-timer-status">Pausiert</div>
+        </div>
+    </div>
+    <div class="form-row" style="margin-bottom: 10px;">
+        <button class="timer-btn" style="background: #27ae60;" onclick="startTimer()">Start</button>
+        <button class="timer-btn" style="background: #e67e22;" onclick="pauseTimer()">Pause</button>
+        <button class="timer-btn" style="background: #c0392b;" onclick="resetTimer()">Reset</button>
+    </div>
+
+    <div class="panel-section">Kreis-Ringe Design (Leuchten)</div>
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label>Ring Links (Folge)</label>
+            <input type="color" id="input-color-green" value="#2ecc71" oninput="updateLive()">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Ring Rechts (Timer)</label>
+            <input type="color" id="input-color-blue" value="#1aafeb" oninput="updateLive()">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Kreis Neon Glow</label>
+            <input type="color" id="input-color-glow" value="#2ecc71" oninput="updateLive()">
+        </div>
+    </div>
+
+    <div class="panel-section">Hintergrund- &amp; Layout-Anpassung</div>
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label>Feste Hintergrund-Farbe</label>
+            <input type="color" id="input-bg-color" value="#000000" oninput="updateLive()">
+        </div>
+        <div class="checkbox-group" style="flex: 1; margin-top: 18px; height: 30px;">
+            <input type="checkbox" id="check-bg-transparent" checked onchange="updateLive()">
+            <label for="check-bg-transparent">Volltransparent</label>
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Hintergrund-Medium (Bildpfad / .mp4 / .webm)</label>
+        <input type="text" id="input-bg" value="" placeholder="z.B. wald.mp4, neon.webm oder bild.jpg" oninput="updateLive()">
+    </div>
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label>Breite (px)</label>
+            <input type="number" id="input-width" value="1920" oninput="updateLive()">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Höhe (px)</label>
+            <input type="number" id="input-height" value="1080" oninput="updateLive()">
+        </div>
+    </div>
+
+    <button class="btn-copy" id="copy-btn" onclick="copyCodeToClipboard()">Code in Zwischenablage kopieren</button>
+</div>
+
+<div class="main-container" id="main-container">
+    <video id="main-bg-video" class="bg-video-element" autoplay loop muted playsinline></video>
+
+    <div class="bird" style="animation-delay: 0s; top: 80px;"></div>
+    <div class="bird" style="animation-delay: 5s; top: 120px;"></div>
+
+    <div class="header-info">
+        <div class="rec-dot" id="live-rec-container" style="color: var(--color-rec);">● REC</div>
+        <h1 id="live-episode-container" style="margin:0; font-size: 2.5rem; color: var(--color-episode);">EPISODE Folge: <span id="ep-header" style="color: var(--color-ep-number);">20</span></h1>
+        <h2 style="margin:0; letter-spacing: 2px;" id="live-kapitel-container">
+            <span style="color: var(--color-kapitel-label);"><span id="lbl-kapitel-display">Kapitel</span> <span id="live-kapitel-nr">5</span>: </span>
+            <span id="live-kapitel-name" style="color: var(--color-kapitel-name);">Vegetarier</span>
+        </h2>
+    </div>
+
+    <div class="widgets-group">
+        <div style="display: flex; flex-direction: column; align-items: flex-end;">
+            <div style="display: flex; gap: 25px;">
+                
+                <div class="progress-box" id="folgen-widget-container">
+                    <svg width="160" height="160" id="live-folgen-svg">
+                        <circle cx="80" cy="80" r="70" stroke="rgba(0,0,0,0.5)" stroke-width="12" fill="none"></circle>
+                        <circle id="progress-bar" class="bar" cx="80" cy="80" r="70" fill="none" style="stroke-dashoffset: 351.858px;"></circle>
+                    </svg>
+                    <div id="live-folgen-text-container" style="position: absolute; top:50%; left:50%; transform:translate(-50%, -50%); width: 110px;">
+                        <div style="font-size: 0.75rem; opacity: 0.8; letter-spacing:1px; color: var(--color-label-folge);" id="folgen-label-display">FOLGE</div>
+                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--color-wert-folge);"><span id="curr-val">20</span>/<span id="max-val">100</span></div>
+                    </div>
+                </div>
+
+                <div class="progress-box" id="timer-widget-container">
+                    <svg width="160" height="160" id="live-timer-svg">
+                        <circle cx="80" cy="80" r="70" stroke="rgba(0,0,0,0.5)" stroke-width="12" fill="none"></circle>
+                        <circle id="timer-bar" class="bar-timer" cx="80" cy="80" r="70" fill="none"></circle>
+                    </svg>
+                    <div id="live-timer-text-container" style="position: absolute; top:50%; left:50%; transform:translate(-50%, -50%); width: 110px;">
+                        <div style="font-size: 0.75rem; opacity: 0.8; letter-spacing:1px; color: var(--color-label-timer);" id="timer-label-display">RESTZEIT</div>
+                        <div style="font-size: 1.4rem; font-weight: bold; color: var(--color-wert-timer);" id="timer-display">31:00</div>
+                    </div>
+                </div>
+
             </div>
 
-            <div class="info-card" id="box-kapitel">
-                <div class="card-title" style="color: var(--color-label-timer);">Status / Ziel</div>
-                <div style="font-size: 1.2rem; color: var(--color-game);" id="txt-game">FARMER'S DYNASTY 2</div>
-                <div style="font-size: 1.1rem; margin-top: 5px; color: var(--color-fortschritt);">
-                    Fortschritt: <span id="txt-prozent">19%</span>
-                </div>
+            <div class="quest-display-container" id="live-quest-container">
+                <h2 style="margin:10px 0 0 0; letter-spacing: 1px; font-size: 1.3rem;">
+                    <span id="lbl-quest-display" style="color: var(--color-quest-label);">Quest:</span> 
+                    <span id="live-quest" style="color: var(--color-quest-name);">Der Gutsherr Alle Hofgebäuden Reparieren</span>
+                </h2>
             </div>
         </div>
     </div>
 
-    <input type="hidden" id="input-game" value="FARMER'S DYNASTY 2">
-    <input type="hidden" id="input-folge" value="19">
-    <input type="hidden" id="input-ziel" value="100">
-    <input type="hidden" id="input-kapitel-nr" value="5">
-    <input type="hidden" id="input-kapitel-name" value="Vegetarier">
-    <input type="hidden" id="input-quest" value="Nicks Anhänger">
-    <input type="hidden" id="input-width" value="1920">
-    <input type="hidden" id="input-height" value="1080">
-    <input type="hidden" id="input-bg" value="">
-    
-    <input type="hidden" id="input-color-green" value="#2ecc71">
-    <input type="hidden" id="input-color-blue" value="#1aafeb">
-    <input type="hidden" id="input-color-glow" value="#2ecc71">
+    <div class="footer-status" id="live-footer-container">
+        <h2 id="live-game" style="margin:0; letter-spacing: 2px; color: var(--color-game);">FARMER'S DYNASTY 2</h2>
+        <span id="live-fortschritt-text" style="color: var(--color-fortschritt);">GESAMTFORTSCHRITT: <span id="perc-display" style="color: var(--farm-green);">0</span>% ERREICHT</span>
+    </div>
+</div>
 
-    <input type="hidden" id="input-vis-main" value="visible">
-    <input type="hidden" id="input-vis-quest" value="visible">
-    <input type="hidden" id="input-vis-kapitel" value="visible">
+<script>
+    let timerInterval = null;
+    let isTimerRunning = false;
+    let totalSeconds = 31 * 60;
+    let secondsLeft = 31 * 60;
 
-    <script>
-        function liveSync() {
-            // Werte injizieren
-            document.getElementById('txt-game').innerText = document.getElementById('input-game').value;
-            const folge = document.getElementById('input-folge').value;
-            document.getElementById('txt-folge').innerText = folge;
-            document.getElementById('txt-kap-nr').innerText = document.getElementById('input-kapitel-nr').value;
-            document.getElementById('txt-kap-name').innerText = document.getElementById('input-kapitel-name').value;
-            document.getElementById('txt-quest').innerText = document.getElementById('input-quest').value;
+    window.onload = () => {
+        // LocalStorage Werte laden falls vorhanden
+        if(localStorage.getItem('overlay_game')) {
+            document.getElementById('input-game').value = localStorage.getItem('overlay_game');
+            document.getElementById('input-folge').value = localStorage.getItem('overlay_folge');
+            document.getElementById('input-ziel').value = localStorage.getItem('overlay_ziel');
+            if(localStorage.getItem('overlay_label_fortschritt') !== null) document.getElementById('input-label-fortschritt').value = localStorage.getItem('overlay_label_fortschritt');
+            if(localStorage.getItem('overlay_fortschritt')) document.getElementById('input-fortschritt').value = localStorage.getItem('overlay_fortschritt');
+            if(localStorage.getItem('overlay_label_quest')) document.getElementById('input-label-quest').value = localStorage.getItem('overlay_label_quest');
+            document.getElementById('input-quest').value = localStorage.getItem('overlay_quest');
+            if(localStorage.getItem('overlay_label_kapitel')) document.getElementById('input-label-kapitel').value = localStorage.getItem('overlay_label_kapitel');
+            document.getElementById('input-kapitel-nr').value = localStorage.getItem('overlay_kapitel_nr');
+            document.getElementById('input-kapitel-name').value = localStorage.getItem('overlay_kapitel_name');
             
-            const ziel = parseInt(document.getElementById('input-ziel').value) || 100;
-            const proz = ziel > 0 ? Math.round((parseInt(folge) / ziel) * 100) : 0;
-            document.getElementById('txt-prozent').innerText = proz + "%";
+            document.getElementById('input-color-green').value = localStorage.getItem('overlay_color_green') || "#2ecc71";
+            document.getElementById('input-color-blue').value = localStorage.getItem('overlay_color_blue') || "#1aafeb";
+            document.getElementById('input-color-glow').value = localStorage.getItem('overlay_color_glow') || "#2ecc71";
+            
+            // Neue Farbwerte aus Storage holen
+            if(localStorage.getItem('ov_col_rec')) document.getElementById('color-picker-rec').value = localStorage.getItem('ov_col_rec');
+            if(localStorage.getItem('ov_col_ep')) document.getElementById('color-picker-episode').value = localStorage.getItem('ov_col_ep');
+            if(localStorage.getItem('ov_col_epnum')) document.getElementById('color-picker-ep-number').value = localStorage.getItem('ov_col_epnum');
+            if(localStorage.getItem('ov_col_kaplbl')) document.getElementById('color-picker-kapitel-label').value = localStorage.getItem('ov_col_kaplbl');
+            if(localStorage.getItem('ov_col_kapnm')) document.getElementById('color-picker-kapitel-name').value = localStorage.getItem('ov_col_kapnm');
+            if(localStorage.getItem('ov_col_lblflg')) document.getElementById('color-picker-label-folge').value = localStorage.getItem('ov_col_lblflg');
+            if(localStorage.getItem('ov_col_wrtflg')) document.getElementById('color-picker-wert-folge').value = localStorage.getItem('ov_col_wrtflg');
+            if(localStorage.getItem('ov_col_lbltmr')) document.getElementById('color-picker-label-timer').value = localStorage.getItem('ov_col_lbltmr');
+            if(localStorage.getItem('ov_col_wrttmr')) document.getElementById('color-picker-wert-timer').value = localStorage.getItem('ov_col_wrttmr');
+            if(localStorage.getItem('ov_col_qstlbl')) document.getElementById('color-picker-quest-label').value = localStorage.getItem('ov_col_qstlbl');
+            if(localStorage.getItem('ov_col_qstnm')) document.getElementById('color-picker-quest-name').value = localStorage.getItem('ov_col_qstnm');
+            if(localStorage.getItem('ov_col_gm')) document.getElementById('color-picker-game').value = localStorage.getItem('ov_col_gm');
+            if(localStorage.getItem('ov_col_frt')) document.getElementById('color-picker-fortschritt').value = localStorage.getItem('ov_col_frt');
 
-            // Sichtbarkeiten steuern
-            document.getElementById('box-main').style.display = (document.getElementById('input-vis-main').value === 'hidden') ? 'none' : 'flex';
-            document.getElementById('box-quest').style.display = (document.getElementById('input-vis-quest').value === 'hidden') ? 'none' : 'block';
-            document.getElementById('box-kapitel').style.display = (document.getElementById('input-vis-kapitel').value === 'hidden') ? 'none' : 'block';
+            // Hintergrund-Settings aus Storage laden
+            if(localStorage.getItem('overlay_bg_color')) document.getElementById('input-bg-color').value = localStorage.getItem('overlay_bg_color');
+            if(localStorage.getItem('overlay_bg_transparent') !== null) document.getElementById('check-bg-transparent').checked = localStorage.getItem('overlay_bg_transparent') === 'true';
+
+            document.getElementById('input-width').value = localStorage.getItem('overlay_width') || "1920";
+            document.getElementById('input-height').value = localStorage.getItem('overlay_height') || "1080";
+            document.getElementById('input-bg').value = localStorage.getItem('overlay_bg') || "";
+            document.getElementById('input-dauer').value = localStorage.getItem('overlay_timer_duration') || "31";
+            
+            document.getElementById('input-label-rec').value = localStorage.getItem('overlay_label_rec') || "● REC";
+            document.getElementById('input-label-folgenkreis').value = localStorage.getItem('overlay_label_folgenkreis') || "FOLGE";
+
+            // Sichtbarkeiten laden
+            if(localStorage.getItem('overlay_show_rec') !== null) document.getElementById('check-show-rec').checked = localStorage.getItem('overlay_show_rec') === 'true';
+            if(localStorage.getItem('overlay_show_episode') !== null) document.getElementById('check-show-episode').checked = localStorage.getItem('overlay_show_episode') === 'true';
+            if(localStorage.getItem('overlay_show_kapitel') !== null) document.getElementById('check-show-kapitel').checked = localStorage.getItem('overlay_show_kapitel') === 'true';
+            if(localStorage.getItem('overlay_show_folgenkreis') !== null) document.getElementById('check-show-folgenkreis').checked = localStorage.getItem('overlay_show_folgenkreis') === 'true';
+            if(localStorage.getItem('overlay_show_folgentext') !== null) document.getElementById('check-show-folgentext').checked = localStorage.getItem('overlay_show_folgentext') === 'true';
+            if(localStorage.getItem('overlay_show_timerkreis') !== null) document.getElementById('check-show-timerkreis').checked = localStorage.getItem('overlay_show_timerkreis') === 'true';
+            if(localStorage.getItem('overlay_show_timertext') !== null) document.getElementById('check-show-timertext').checked = localStorage.getItem('overlay_show_timertext') === 'true';
+            if(localStorage.getItem('overlay_show_quest') !== null) document.getElementById('check-show-quest').checked = localStorage.getItem('overlay_show_quest') === 'true';
+            if(localStorage.getItem('overlay_show_game') !== null) document.getElementById('check-show-game').checked = localStorage.getItem('overlay_show_game') === 'true';
+            if(localStorage.getItem('overlay_show_fortschritt') !== null) document.getElementById('check-show-fortschritt').checked = localStorage.getItem('overlay_show_fortschritt') === 'true';
         }
 
-        setInterval(liveSync, 1000);
-        window.onload = liveSync;
-    </script>
+        const savedDuration = parseInt(document.getElementById('input-dauer').value) || 31;
+        totalSeconds = savedDuration * 60;
+        
+        if (localStorage.getItem('overlay_timer_left')) {
+            secondsLeft = parseInt(localStorage.getItem('overlay_timer_left'));
+        } else {
+            secondsLeft = totalSeconds;
+        }
+
+        if (window.location.search.includes('control=1')) {
+            const style = document.createElement('style');
+            style.innerHTML = '#admin-panel { display: block !important; }';
+            document.head.appendChild(style);
+        }
+
+        updateLive();
+        calculateAndAnimate(true);
+        updateTimerDisplay();
+
+        timerInterval = setInterval(tickTimer, 1000);
+    };
+
+    function updateLive() {
+        const game = document.getElementById('input-game').value;
+        const lblQuest = document.getElementById('input-label-quest').value;
+        const quest = document.getElementById('input-quest').value;
+        const lblKapitel = document.getElementById('input-label-kapitel').value;
+        const kapNr = document.getElementById('input-kapitel-nr').value;
+        const kapName = document.getElementById('input-kapitel-name').value;
+        const labelFortschritt = document.getElementById('input-label-fortschritt').value;
+        const fortschritt = document.getElementById('input-fortschritt').value || "0";
+        
+        const lblRec = document.getElementById('input-label-rec').value;
+        const lblFolgenkreis = document.getElementById('input-label-folgenkreis').value;
+        
+        const colGreen = document.getElementById('input-color-green').value;
+        const colBlue = document.getElementById('input-color-blue').value;
+        const colGlow = document.getElementById('input-color-glow').value;
+        
+        const wWidth = document.getElementById('input-width').value || "1920";
+        const wHeight = document.getElementById('input-height').value || "1080";
+        const bgImgOrVideo = document.getElementById('input-bg').value.trim();
+
+        // Farbwerte aus den neuen Pickern holen
+        const cRec = document.getElementById('color-picker-rec').value;
+        const cEp = document.getElementById('color-picker-episode').value;
+        const cEpNum = document.getElementById('color-picker-ep-number').value;
+        const cKapLbl = document.getElementById('color-picker-kapitel-label').value;
+        const cKapNm = document.getElementById('color-picker-kapitel-name').value;
+        const cLblFlg = document.getElementById('color-picker-label-folge').value;
+        const cWrtFlg = document.getElementById('color-picker-wert-folge').value;
+        const cLblTmr = document.getElementById('color-picker-label-timer').value;
+        const cWrtTmr = document.getElementById('color-picker-wert-timer').value;
+        const cQstLbl = document.getElementById('color-picker-quest-label').value;
+        const cQstNm = document.getElementById('color-picker-quest-name').value;
+        const cGm = document.getElementById('color-picker-game').value;
+        const cFrt = document.getElementById('color-picker-fortschritt').value;
+
+        // Hintergrund Farbe & Transparenz
+        const bgFarbe = document.getElementById('input-bg-color').value;
+        const bgTransparent = document.getElementById('check-bg-transparent').checked;
+
+        // Schalter abfragen
+        const showRec = document.getElementById('check-show-rec').checked;
+        const showEpisode = document.getElementById('check-show-episode').checked;
+        const showKapitel = document.getElementById('check-show-kapitel').checked;
+        const showFolgenkreis = document.getElementById('check-show-folgenkreis').checked;
+        const showFolgentext = document.getElementById('check-show-folgentext').checked;
+        const showTimerkreis = document.getElementById('check-show-timerkreis').checked;
+        const showTimertext = document.getElementById('check-show-timertext').checked;
+        const showQuest = document.getElementById('check-show-quest').checked;
+        const showGame = document.getElementById('check-show-game').checked;
+        const showFortschritt = document.getElementById('check-show-fortschritt').checked;
+
+        // CSS Variablen für exakte Textfarben setzen
+        document.documentElement.style.setProperty('--color-rec', cRec);
+        document.documentElement.style.setProperty('--color-episode', cEp);
+        document.documentElement.style.setProperty('--color-ep-number', cEpNum);
+        document.documentElement.style.setProperty('--color-kapitel-label', cKapLbl);
+        document.documentElement.style.setProperty('--color-kapitel-name', cKapNm);
+        document.documentElement.style.setProperty('--color-label-folge', cLblFlg);
+        document.documentElement.style.setProperty('--color-wert-folge', cWrtFlg);
+        document.documentElement.style.setProperty('--color-label-timer', cLblTmr);
+        document.documentElement.style.setProperty('--color-wert-timer', cWrtTmr);
+        document.documentElement.style.setProperty('--color-quest-label', cQstLbl);
+        document.documentElement.style.setProperty('--color-quest-name', cQstNm);
+        document.documentElement.style.setProperty('--color-game', cGm);
+        document.documentElement.style.setProperty('--color-fortschritt', cFrt);
+
+        // LINKS OBEN: Füttern
+        document.getElementById('live-rec-container').style.display = showRec ? "flex" : "none";
+        document.getElementById('live-rec-container').innerText = lblRec;
+        document.getElementById('live-episode-container').style.display = showEpisode ? "block" : "none";
+        document.getElementById('live-kapitel-container').style.display = showKapitel ? "block" : "none";
+
+        // RECHTS OBEN (KREISE & TEXTE):
+        document.getElementById('folgen-widget-container').style.display = (showFolgenkreis || showFolgentext) ? "block" : "none";
+        document.getElementById('live-folgen-svg').style.visibility = showFolgenkreis ? "visible" : "hidden";
+        document.getElementById('live-folgen-text-container').style.display = showFolgentext ? "block" : "none";
+        document.getElementById('folgen-label-display').innerText = lblFolgenkreis.toUpperCase();
+
+        document.getElementById('timer-widget-container').style.display = (showTimerkreis || showTimertext) ? "block" : "none";
+        document.getElementById('live-timer-svg').style.visibility = showTimerkreis ? "visible" : "hidden";
+        document.getElementById('live-timer-text-container').style.display = showTimertext ? "block" : "none";
+
+        document.getElementById('live-quest-container').style.display = showQuest ? "block" : "none";
+
+        // Haupt-Texte füttern
+        document.getElementById('live-game').style.display = showGame ? "block" : "none";
+        document.getElementById('live-game').innerText = game.toUpperCase();
+        document.getElementById('lbl-quest-display').innerText = lblQuest.trim().endsWith(':') ? lblQuest : lblQuest + ' ';
+        document.getElementById('live-quest').innerText = quest;
+        document.getElementById('lbl-kapitel-display').innerText = lblKapitel.replace(':', '').trim();
+        document.getElementById('live-kapitel-nr').innerText = kapNr;
+        document.getElementById('live-kapitel-name').innerText = kapName;
+
+        // Fortschrittstext umschalten
+        const textContainer = document.getElementById('live-fortschritt-text');
+        if (!showFortschritt || labelFortschritt.trim() === "") {
+            textContainer.style.display = "none";
+        } else {
+            textContainer.style.display = "inline";
+            let formatierterText = labelFortschritt.replace("{wert}", `<span id="perc-display" style="color: var(--farm-green);">${fortschritt}</span>`);
+            textContainer.innerHTML = formatierterText;
+        }
+
+        // Basis Ring-Farbvariablen zuweisen
+        document.documentElement.style.setProperty('--farm-green', colGreen);
+        document.documentElement.style.setProperty('--farm-blue', colBlue);
+        document.documentElement.style.setProperty('--widget-width', wWidth + "px");
+        document.documentElement.style.setProperty('--widget-height', wHeight + "px");
+
+        const r = parseInt(colGlow.substr(1,2), 16);
+        const g = parseInt(colGlow.substr(3,2), 16);
+        const b = parseInt(colGlow.substr(5,2), 16);
+        document.documentElement.style.setProperty('--neon-glow', `rgba(${r}, ${g}, ${b}, 0.8)`);
+
+        // MULTI-HINTERGRUND LOGIK (Farbe, Transparenz, Bild, mp4, webm)
+        const container = document.getElementById('main-container');
+        const videoEl = document.getElementById('main-bg-video');
+
+        // Erst Grundfarbe / Transparenz regeln
+        if(bgTransparent) {
+            container.style.backgroundColor = "transparent";
+        } else {
+            container.style.backgroundColor = bgFarbe;
+        }
+
+        if(bgImgOrVideo !== "") {
+            const ext = bgImgOrVideo.split('.').pop().toLowerCase();
+            // Wenn es ein Video ist (.mp4 oder .webm)
+            if(ext === 'mp4' || ext === 'webm') {
+                container.style.backgroundImage = "none";
+                if(videoEl.getAttribute('src') !== bgImgOrVideo) {
+                    videoEl.src = bgImgOrVideo;
+                    videoEl.load();
+                }
+                videoEl.style.display = "block";
+            } else {
+                // Wenn es ein Bild ist (.jpg, .png etc.)
+                videoEl.style.display = "none";
+                videoEl.src = "";
+                container.style.backgroundImage = `url('${bgImgOrVideo}')`;
+            }
+        } else {
+            // Gar kein Medium eingetragen
+            videoEl.style.display = "none";
+            videoEl.src = "";
+            container.style.backgroundImage = "none";
+        }
+
+        // Im LocalStorage sichern
+        localStorage.setItem('overlay_game', game);
+        localStorage.setItem('overlay_folge', document.getElementById('input-folge').value);
+        localStorage.setItem('overlay_ziel', document.getElementById('input-ziel').value);
+        localStorage.setItem('overlay_label_fortschritt', labelFortschritt);
+        localStorage.setItem('overlay_fortschritt', fortschritt);
+        localStorage.setItem('overlay_label_quest', lblQuest);
+        localStorage.setItem('overlay_quest', quest);
+        localStorage.setItem('overlay_label_kapitel', lblKapitel);
+        localStorage.setItem('overlay_kapitel_nr', kapNr);
+        localStorage.setItem('overlay_kapitel_name', kapName);
+        
+        localStorage.setItem('overlay_color_green', colGreen);
+        localStorage.setItem('overlay_color_blue', colBlue);
+        localStorage.setItem('overlay_color_glow', colGlow);
+
+        // Textfarben sichern
+        localStorage.setItem('ov_col_rec', cRec);
+        localStorage.setItem('ov_col_ep', cEp);
+        localStorage.setItem('ov_col_epnum', cEpNum);
+        localStorage.setItem('ov_col_kaplbl', cKapLbl);
+        localStorage.setItem('ov_col_kapnm', cKapNm);
+        localStorage.setItem('ov_col_lblflg', cLblFlg);
+        localStorage.setItem('ov_col_wrtflg', cWrtFlg);
+        localStorage.setItem('ov_col_lbltmr', cLblTmr);
+        localStorage.setItem('ov_col_wrttmr', cWrtTmr);
+        localStorage.setItem('ov_col_qstlbl', cQstLbl);
+        localStorage.setItem('ov_col_qstnm', cQstNm);
+        localStorage.setItem('ov_col_gm', cGm);
+        localStorage.setItem('ov_col_frt', cFrt);
+
+        // Background-Typen sichern
+        localStorage.setItem('overlay_bg_color', bgFarbe);
+        localStorage.setItem('overlay_bg_transparent', bgTransparent);
+
+        localStorage.setItem('overlay_width', wWidth);
+        localStorage.setItem('overlay_height', wHeight);
+        localStorage.setItem('overlay_bg', bgImgOrVideo);
+        localStorage.setItem('overlay_label_rec', lblRec);
+        localStorage.setItem('overlay_label_folgenkreis', lblFolgenkreis);
+
+        // Checkboxen sichern
+        localStorage.setItem('overlay_show_rec', showRec);
+        localStorage.setItem('overlay_show_episode', showEpisode);
+        localStorage.setItem('overlay_show_kapitel', showKapitel);
+        localStorage.setItem('overlay_show_folgenkreis', showFolgenkreis);
+        localStorage.setItem('overlay_show_folgentext', showFolgentext);
+        localStorage.setItem('overlay_show_timerkreis', showTimerkreis);
+        localStorage.setItem('overlay_show_timertext', showTimertext);
+        localStorage.setItem('overlay_show_quest', showQuest);
+        localStorage.setItem('overlay_show_game', showGame);
+        localStorage.setItem('overlay_show_fortschritt', showFortschritt);
+
+        calculateAndAnimate(false);
+    }
+
+    function calculateAndAnimate(isFirstLoad) {
+        const folge = parseInt(document.getElementById('input-folge').value) || 0;
+        const ziel = parseInt(document.getElementById('input-ziel').value) || 100;
+        const prozentKREIS = Math.round((folge / ziel) * 100) || 0;
+        const fortschrittTEXT = parseInt(document.getElementById('input-fortschritt').value) || 0;
+
+        document.getElementById('ep-header').innerText = folge;
+        document.getElementById('max-val').innerText = ziel;
+
+        const circumference = 2 * Math.PI * 70;
+        const offset = circumference - (Math.min(prozentKREIS, 100) / 100 * circumference);
+        document.getElementById('progress-bar').style.strokeDashoffset = offset;
+
+        const percDisplay = document.getElementById('perc-display');
+        if (percDisplay) {
+            if (isFirstLoad) {
+                setTimeout(() => {
+                    animateNumber('curr-val', 0, folge, 2000);
+                    animateNumber('perc-display', 0, fortschrittTEXT, 2000);
+                }, 500);
+            } else {
+                document.getElementById('curr-val').innerText = folge;
+                percDisplay.innerText = fortschrittTEXT;
+            }
+        } else {
+            if (isFirstLoad) {
+                setTimeout(() => {
+                    animateNumber('curr-val', 0, folge, 2000);
+                }, 500);
+            } else {
+                document.getElementById('curr-val').innerText = folge;
+            }
+        }
+    }
+
+    function animateNumber(id, start, end, duration) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            el.innerText = Math.floor(progress * (end - start) + start);
+            if (progress < 1) window.requestAnimationFrame(step);
+        };
+        window.requestAnimationFrame(step);
+    }
+
+    function updateTimerDuration() {
+        const dauerMinuten = parseInt(document.getElementById('input-dauer').value) || 31;
+        totalSeconds = dauerMinuten * 60;
+        secondsLeft = totalSeconds;
+        localStorage.setItem('overlay_timer_duration', dauerMinuten);
+        localStorage.setItem('overlay_timer_left', secondsLeft);
+        updateTimerDisplay();
+    }
+
+    function startTimer() {
+        isTimerRunning = true;
+        document.getElementById('admin-timer-status').innerText = "Läuft...";
+        document.getElementById('admin-timer-status').style.color = "#2ecc71";
+    }
+
+    function pauseTimer() {
+        isTimerRunning = false;
+        document.getElementById('admin-timer-status').innerText = "Pausiert";
+        document.getElementById('admin-timer-status').style.color = "#ffb300";
+    }
+
+    function resetTimer() {
+        pauseTimer();
+        const dauerMinuten = parseInt(document.getElementById('input-dauer').value) || 31;
+        totalSeconds = dauerMinuten * 60;
+        secondsLeft = totalSeconds;
+        localStorage.setItem('overlay_timer_left', secondsLeft);
+        updateTimerDisplay();
+    }
+
+    function tickTimer() {
+        if (!isTimerRunning) return;
+
+        if (secondsLeft > 0) {
+            secondsLeft--;
+            localStorage.setItem('overlay_timer_left', secondsLeft);
+            updateTimerDisplay();
+        } else {
+            let folgeInput = document.getElementById('input-folge');
+            let currentFolge = parseInt(folgeInput.value) || 0;
+            currentFolge++;
+            folgeInput.value = currentFolge;
+            
+            const dauerMinuten = parseInt(document.getElementById('input-dauer').value) || 31;
+            totalSeconds = dauerMinuten * 60;
+            secondsLeft = totalSeconds;
+            localStorage.setItem('overlay_timer_left', secondsLeft);
+            
+            updateLive();
+            updateTimerDisplay();
+        }
+    }
+
+    function updateTimerDisplay() {
+        const display = document.getElementById('timer-display');
+        const label = document.getElementById('timer-label-display');
+        const mins = Math.floor(secondsLeft / 60);
+        const secs = secondsLeft % 60;
+        
+        if(display) display.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        
+        const circumference = 2 * Math.PI * 70;
+        const progressFraction = totalSeconds > 0 ? (secondsLeft / totalSeconds) : 0;
+        const offset = circumference - (progressFraction * circumference);
+        const tBar = document.getElementById('timer-bar');
+        if(tBar) tBar.style.strokeDashoffset = offset;
+
+        if (label) {
+            if (isTimerRunning) {
+                label.innerText = "RESTZEIT";
+            } else {
+                label.innerText = "PAUSIERT";
+            }
+        }
+    }
+
+    function copyCodeToClipboard() {
+        const gameVal = document.getElementById('input-game').value;
+        const folgeVal = document.getElementById('input-folge').value;
+        const zielVal = document.getElementById('input-ziel').value;
+        const lblFortschrittVal = document.getElementById('input-label-fortschritt').value;
+        const fortschrittVal = document.getElementById('input-fortschritt').value;
+        const lblQuestVal = document.getElementById('input-label-quest').value;
+        const questVal = document.getElementById('input-quest').value;
+        const lblKapitelVal = document.getElementById('input-label-kapitel').value;
+        const kapNrVal = document.getElementById('input-kapitel-nr').value;
+        const kapNameVal = document.getElementById('input-kapitel-name').value;
+        const dauerVal = document.getElementById('input-dauer').value;
+        const lblRecVal = document.getElementById('input-label-rec').value;
+        const lblFolgenkreisVal = document.getElementById('input-label-folgenkreis').value;
+        
+        const colGreenVal = document.getElementById('input-color-green').value;
+        const colBlueVal = document.getElementById('input-color-blue').value;
+        const colGlowVal = document.getElementById('input-color-glow').value;
+        const wWidthVal = document.getElementById('input-width').value;
+        const wHeightVal = document.getElementById('input-height').value;
+        const bgVal = document.getElementById('input-bg').value;
+
+        // Exakte Farbwerte abgreifen
+        const valCRec = document.getElementById('color-picker-rec').value;
+        const valCEp = document.getElementById('color-picker-episode').value;
+        const valCEpNum = document.getElementById('color-picker-ep-number').value;
+        const valCKapLbl = document.getElementById('color-picker-kapitel-label').value;
+        const valCKapNm = document.getElementById('color-picker-kapitel-name').value;
+        const valCLblFlg = document.getElementById('color-picker-label-folge').value;
+        const valCWrtFlg = document.getElementById('color-picker-wert-folge').value;
+        const valCLblTmr = document.getElementById('color-picker-label-timer').value;
+        const valCWrtTmr = document.getElementById('color-picker-wert-timer').value;
+        const valCQstLbl = document.getElementById('color-picker-quest-label').value;
+        const valCQstNm = document.getElementById('color-picker-quest-name').value;
+        const valCGm = document.getElementById('color-picker-game').value;
+        const valCFrt = document.getElementById('color-picker-fortschritt').value;
+
+        const valBgCol = document.getElementById('input-bg-color').value;
+        const valBgTrans = document.getElementById('check-bg-transparent').checked ? "checked" : "";
+
+        // Checkboxen
+        const cRec = document.getElementById('check-show-rec').checked ? "checked" : "";
+        const cEp = document.getElementById('check-show-episode').checked ? "checked" : "";
+        const cKap = document.getElementById('check-show-kapitel').checked ? "checked" : "";
+        const cFk = document.getElementById('check-show-folgenkreis').checked ? "checked" : "";
+        const cFt = document.getElementById('check-show-folgentext').checked ? "checked" : "";
+        const cTk = document.getElementById('check-show-timerkreis').checked ? "checked" : "";
+        const cTt = document.getElementById('check-show-timertext').checked ? "checked" : "";
+        const cQue = document.getElementById('check-show-quest').checked ? "checked" : "";
+        const cGame = document.getElementById('check-show-game').checked ? "checked" : "";
+        const cFor = document.getElementById('check-show-fortschritt').checked ? "checked" : "";
+
+        let currentHTML = document.documentElement.outerHTML;
+
+        // Ersetzungen für Felder
+        currentHTML = currentHTML.replace(/id="input-game"\s+value=".*?"/, `id="input-game" value="${gameVal}"`);
+        currentHTML = currentHTML.replace(/id="input-folge"\s+value="\d+"/, `id="input-folge" value="${folgeVal}"`);
+        currentHTML = currentHTML.replace(/id="input-ziel"\s+value="\d+"/, `id="input-ziel" value="${zielVal}"`);
+        currentHTML = currentHTML.replace(/id="input-label-fortschritt"\s+value=".*?"/, `id="input-label-fortschritt" value="${lblFortschrittVal}"`);
+        currentHTML = currentHTML.replace(/id="input-fortschritt"\s+value="\d+"/, `id="input-fortschritt" value="${fortschrittVal}"`);
+        currentHTML = currentHTML.replace(/id="input-label-quest"\s+value=".*?"/, `id="input-label-quest" value="${lblQuestVal}"`);
+        currentHTML = currentHTML.replace(/id="input-quest"\s+value=".*?"/, `id="input-quest" value="${questVal}"`);
+        currentHTML = currentHTML.replace(/id="input-label-kapitel"\s+value=".*?"/, `id="input-label-kapitel" value="${lblKapitelVal}"`);
+        currentHTML = currentHTML.replace(/id="input-kapitel-nr"\s+value=".*?"/, `id="input-kapitel-nr" value="${kapNrVal}"`);
+        currentHTML = currentHTML.replace(/id="input-kapitel-name"\s+value=".*?"/, `id="input-kapitel-name" value="${kapNameVal}"`);
+        currentHTML = currentHTML.replace(/id="input-dauer"\s+value="\d+"/, `id="input-dauer" value="${dauerVal}"`);
+        currentHTML = currentHTML.replace(/id="input-label-rec"\s+value=".*?"/, `id="input-label-rec" value="${lblRecVal}"`);
+        currentHTML = currentHTML.replace(/id="input-label-folgenkreis"\s+value=".*?"/, `id="input-label-folgenkreis" value="${lblFolgenkreisVal}"`);
+        
+        currentHTML = currentHTML.replace(/id="input-color-green"\s+value=".*?"/, `id="input-color-green" value="${colGreenVal}"`);
+        currentHTML = currentHTML.replace(/id="input-color-blue"\s+value=".*?"/, `id="input-color-blue" value="${colBlueVal}"`);
+        currentHTML = currentHTML.replace(/id="input-color-glow"\s+value=".*?"/, `id="input-color-glow" value="${colGlowVal}"`);
+        currentHTML = currentHTML.replace(/id="input-width"\s+value=".*?"/, `id="input-width" value="${wWidthVal}"`);
+        currentHTML = currentHTML.replace(/id="input-height"\s+value=".*?"/, `id="input-height" value="${wHeightVal}px"`);
+        currentHTML = currentHTML.replace(/id="input-bg"\s+value=".*?"/, `id="input-bg" value="${bgVal}"`);
+
+        // Picker im Exporthtml ersetzen
+        currentHTML = currentHTML.replace(/id="color-picker-rec"\s+value=".*?"/, `id="color-picker-rec" value="${valCRec}"`);
+        currentHTML = currentHTML.replace(/id="color-picker-episode"\s+value=".*?"/, `id="color-picker-episode" value="${valCEp}"`);
+        currentHTML = currentHTML.replace(/id="color-picker-ep-number"\s+value=".*?"/, `id="color-picker-ep-number" value="${valCEpNum}"`);
+        currentHTML = currentHTML.replace(/id="color-picker-kapitel-label"\s+value=".*?"/, `id="color-picker-kapitel-label" value="${valCKapLbl}"`);
+        currentHTML = currentHTML.replace(/id="color-picker-kapitel-name"\s+value=".*?"/, `id="color-picker-kapitel-name" value="${valCKapNm}"`);
+        currentHTML = currentHTML.replace(/id="color-picker-label-folge"\s+value=".*?"/, `id="color-picker-label-folge" value="${valCLblFlg}"`);
+        currentHTML = currentHTML.replace(/id="color-picker-wert-folge"\s+value=".*?"/, `id="color-picker-wert-folge" value="${valCWrtFlg}"`);
+        currentHTML = currentHTML.replace(/id="color-picker-label-timer"\s+value=".*?"/, `id="color-picker-label-timer" value="${valCLblTmr}"`);
+        currentHTML = currentHTML.replace(/id="color-picker-wert-timer"\s+value=".*?"/, `id="color-picker-wert-timer" value="${valCWrtTmr}"`);
+        currentHTML = currentHTML.replace(/id="color-picker-quest-label"\s+value=".*?"/, `id="color-picker-quest-label" value="${valCQstLbl}"`);
+        currentHTML = currentHTML.replace(/id="color-picker-quest-name"\s+value=".*?"/, `id="color-picker-quest-name" value="${valCQstNm}"`);
+        currentHTML = currentHTML.replace(/id="color-picker-game"\s+value=".*?"/, `id="color-picker-game" value="${valCGm}"`);
+        currentHTML = currentHTML.replace(/id="color-picker-fortschritt"\s+value=".*?"/, `id="color-picker-fortschritt" value="${valCFrt}"`);
+
+        currentHTML = currentHTML.replace(/id="input-bg-color"\s+value=".*?"/, `id="input-bg-color" value="${valBgCol}"`);
+        currentHTML = currentHTML.replace(/id="check-bg-transparent"\s*(checked=".*?"|checked)?/, `id="check-bg-transparent" ${valBgTrans}`);
+
+        // Checkboxen ersetzen
+        currentHTML = currentHTML.replace(/id="check-show-rec"\s*(checked=".*?"|checked)?/, `id="check-show-rec" ${cRec}`);
+        currentHTML = currentHTML.replace(/id="check-show-episode"\s*(checked=".*?"|checked)?/, `id="check-show-episode" ${cEp}`);
+        currentHTML = currentHTML.replace(/id="check-show-kapitel"\s*(checked=".*?"|checked)?/, `id="check-show-kapitel" ${cKap}`);
+        currentHTML = currentHTML.replace(/id="check-show-folgenkreis"\s*(checked=".*?"|checked)?/, `id="check-show-folgenkreis" ${cFk}`);
+        currentHTML = currentHTML.replace(/id="check-show-folgentext"\s*(checked=".*?"|checked)?/, `id="check-show-folgentext" ${cFt}`);
+        currentHTML = currentHTML.replace(/id="check-show-timerkreis"\s*(checked=".*?"|checked)?/, `id="check-show-timerkreis" ${cTk}`);
+        currentHTML = currentHTML.replace(/id="check-show-timertext"\s*(checked=".*?"|checked)?/, `id="check-show-timertext" ${cTt}`);
+        currentHTML = currentHTML.replace(/id="check-show-quest"\s*(checked=".*?"|checked)?/, `id="check-show-quest" ${cQue}`);
+        currentHTML = currentHTML.replace(/id="check-show-game"\s*(checked=".*?"|checked)?/, `id="check-show-game" ${cGame}`);
+        currentHTML = currentHTML.replace(/id="check-show-fortschritt"\s*(checked=".*?"|checked)?/, `id="check-show-fortschritt" ${cFor}`);
+
+        // CSS Root-Variablen im Text anpassen
+        currentHTML = currentHTML.replace(/--color-rec:\s*#[0-9a-fA-F]{3,6}/, `--color-rec: ${valCRec}`);
+        currentHTML = currentHTML.replace(/--color-episode:\s*#[0-9a-fA-F]{3,6}/, `--color-episode: ${valCEp}`);
+        currentHTML = currentHTML.replace(/--color-ep-number:\s*#[0-9a-fA-F]{3,6}/, `--color-ep-number: ${valCEpNum}`);
+        currentHTML = currentHTML.replace(/--color-kapitel-label:\s*#[0-9a-fA-F]{3,6}/, `--color-kapitel-label: ${valCKapLbl}`);
+        currentHTML = currentHTML.replace(/--color-kapitel-name:\s*#[0-9a-fA-F]{3,6}/, `--color-kapitel-name: ${valCKapNm}`);
+        currentHTML = currentHTML.replace(/--color-label-folge:\s*#[0-9a-fA-F]{3,6}/, `--color-label-folge: ${valCLblFlg}`);
+        currentHTML = currentHTML.replace(/--color-wert-folge:\s*#[0-9a-fA-F]{3,6}/, `--color-wert-folge: ${valCWrtFlg}`);
+        currentHTML = currentHTML.replace(/--color-label-timer:\s*#[0-9a-fA-F]{3,6}/, `--color-label-timer: ${valCLblTmr}`);
+        currentHTML = currentHTML.replace(/--color-wert-timer:\s*#[0-9a-fA-F]{3,6}/, `--color-wert-timer: ${valCWrtTmr}`);
+        currentHTML = currentHTML.replace(/--color-quest-label:\s*#[0-9a-fA-F]{3,6}/, `--color-quest-label: ${valCQstLbl}`);
+        currentHTML = currentHTML.replace(/--color-quest-name:\s*#[0-9a-fA-F]{3,6}/, `--color-quest-name: ${valCQstNm}`);
+        currentHTML = currentHTML.replace(/--color-game:\s*#[0-9a-fA-F]{3,6}/, `--color-game: ${valCGm}`);
+        currentHTML = currentHTML.replace(/--color-fortschritt:\s*#[0-9a-fA-F]{3,6}/, `--color-fortschritt: ${valCFrt}`);
+
+        currentHTML = currentHTML.replace(/--farm-green:\s*#[0-9a-fA-F]{3,6}/g, `--farm-green: ${colGreenVal}`);
+        currentHTML = currentHTML.replace(/--farm-blue:\s*#[0-9a-fA-F]{3,6}/g, `--farm-blue: ${colBlueVal}`);
+        currentHTML = currentHTML.replace(/--widget-width:\s*\d+px/g, `--widget-width: ${wWidthVal}px`);
+        currentHTML = currentHTML.replace(/--widget-height:\s*\d+px/g, `--widget-height: ${wHeightVal}px`);
+
+        const fullFileContent = "<!DOCTYPE html>\n" + currentHTML;
+
+        navigator.clipboard.writeText(fullFileContent).then(() => {
+            const btn = document.getElementById('copy-btn');
+            btn.innerText = "✓ Code kopiert! Jetzt Datei überschreiben";
+            btn.style.background = "#27ae60";
+            setTimeout(() => {
+                btn.innerText = "Code in Zwischenablage kopieren";
+                btn.style.background = "#2ecc71";
+            }, 3000);
+        }).catch(err => {
+            alert("Fehler beim Kopieren.");
+        });
+    }
+</script>
+
 </body>
 </html>
