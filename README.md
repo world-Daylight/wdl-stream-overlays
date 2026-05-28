@@ -8,7 +8,7 @@ Willkommen im offiziellen Repository für die Stream-Overlays und Management-Too
 
 Dieses Paket enthält alle wichtigen Komponenten für unsere Live-Streams:
 
-*   **`wdl-stream-overlays.exe`**: Unser maßgeschneidertes Control-Panel zur externen Steuerung der Overlays.
+*   **`wdl-stream-overlays.zip`** *(Empfohlen)*: Unser maßgeschneidertes Control-Panel zur externen Steuerung der Overlays – sauber verpackt als ZIP-Archiv für einen sicheren und schnellen Download.
 *   **HTML-Overlays**: 
     *   `Overlays-start.html` – Das Haupt-Steuerungscenter. Hier hast du maximale Flexibilität: Du kannst direkt eigene Hintergründe hochladen, vordefinierte Hintergründe wählen oder individuelle Farben einstellen.
     *   `Live-Start.html` – Der Start-Screen für den Stream.
@@ -26,20 +26,24 @@ Dieses Paket enthält alle wichtigen Komponenten für unsere Live-Streams:
 
 Die Overlays basieren auf HTML5/CSS/JS und sind somit mit **jeder modernen Streaming-Software** (z. B. OBS Studio, Streamlabs, vMix, Twitch Studio) kompatibel.
 
-### 1. Overlays in deiner Streaming-Software einbinden
-*   Füge in deiner Streaming-Software eine neue **Browserquelle** (Browser Source / Webpage-Quelle) hinzu.
-*   Aktiviere die Option für **"Lokale Datei"** (Local file).
-*   Klicke auf *Durchsuchen* und wähle die gewünschte HTML-Datei aus (z. B. `Overlays-start.html`, `Live-Start.html` oder `notification.html`).
-*   Stelle die Auflösung in den Eigenschaften der Quelle am besten auf **1920x1080** ein.
+### 1. Control-Panel nutzen
+*   Lade dir die `wdl-stream-overlays.zip` herunter und entpacke sie auf deinem PC.
+*   Starte die darin enthaltene `.exe`, um das externe Steuerungs-Panel zu öffnen.
 
-### 2. Direkte Steuerung über die Streaming-Software (Ohne `.exe`)
-*   Du musst die `.exe` nicht zwingend im Hintergrund laufen lassen!
+### 2. Overlays in deiner Streaming-Software einbinden
+*   Füge in deiner Streaming-Software eine neue **Browserquelle** (Browser Source) hinzu.
+*   Aktiviere die Option für **"Lokale Datei"** (Local file).
+*   Klicke auf *Durchsuchen* und wähle die gewünschte HTML-Datei aus.
+*   Stelle die Auflösung am besten auf **1920x1080** ein.
+
+### 3. Direkte Steuerung über die Streaming-Software (Ohne Panel)
+*   Du musst das Control-Panel nicht zwingend im Hintergrund laufen lassen!
 *   Mache in deiner Software einfach einen **Rechtsklick auf die Browserquelle** und wähle die Interaktions-Funktion (in OBS heißt das **"Interagieren" / "Interact"**).
 *   Es öffnet sich ein Vorschaufenster, in dem du das Overlay direkt anklicken, bedienen, Hintergründe ändern, Farben auswählen und alles live im Stream bearbeiten kannst.
 
 ---
 
 ## 👥 Team & Support
-Dieses Projekt wird exklusiv für das **Team: Twitch Live** und die WDL-Community bereitgestellt. Bei Fragen oder technischen Problemen wende dich direkt an den Support im TS3 oder wdl-gs.de!
+Dieses Projekt wird exklusiv für das **Team: Twitch Live** und die WDL-Community bereitgestellt. Bei Fragen oder technischen Problemen wende dich direkt an den Support im Discord oder wdl-gs.de!
 
 *Design & Development by WDL PavelPascha.*
