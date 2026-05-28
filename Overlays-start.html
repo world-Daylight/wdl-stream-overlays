@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="de" style="--farm-green: #2ecc71; --farm-blue: #1aafeb; --widget-width: 1920px; --widget-height: 1080px; --neon-glow: rgba(46, 204, 113, 0.8);">
+<head>
+    <meta charset="UTF-8">
+    <title>Overlays-start - Live Overlay &amp; Control Panel</title>
+    <style>
+        :root {
+            --farm-green: #2ecc71;
+            --farm-blue: #1aafeb;
+            --neon-glow: rgba(46, 204, 113, 0.8);
+            --text-shadow: 2px 2px 8px rgba(0, 0, 0, 1);
+            --widget-width: 1920px;
+            --widget-height: 1080px;
+
+            /* Individuelle Textfarben-Variablen */
+            --color-rec: #ff4757;
+            --color-episode: #ffffff;
+            --color-ep-number: #2ecc71;
+            --color-kapitel-label: #1aafeb;
+            --color-kapitel-name: #2ecc71;
+            --color-label-folge: #ffffff;
+            --color-wert-folge: #ffffff;
+            --color-label-timer: #ffffff;
+            --color-wert-timer: #1aafeb;
+            --color-quest-label: #1aafeb;
+            --color-quest-name: #2ecc71;
+            --color-game: #ffffff;
+            --color-fortschritt: #ffffff;
+        }
+
+        body {
+            background-color: transparent;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Georgia', serif;
+            color: white;
+        }
+
+        .main-container {
+            width: var(--widget-width);
+            height: var(--widget-height);
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        /* OBERE LEISTE */
+        .top-bar {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid var(--farm-green);
+            box-shadow: 0 0 15px var(--neon-glow);
+            border-radius: 12px;
+            padding: 12px 30px;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            white-space: nowrap;
+        }
+
+        .rec-indicator {
+            color: var(--color-rec);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-shadow: var(--text-shadow);
+        }
+
+        .rec-dot {
+            width: 10px;
+            height: 10px;
+            background-color: var(--color-rec);
+            border-radius: 50%;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+
+        /* RECHTE INFOKARTEN */
+        .right-panel {
+            position: absolute;
+            top: 120px;
+            right: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 380px;
+        }
+
+        .info-card {
+            background: rgba(0, 0, 0, 0.85);
+            border-left: 5px solid var(--farm-blue);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-right: 1px solid rgba(255,255,255,0.1);
+            border-radius: 4px 12px 12px 4px;
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+            text-shadow: var(--text-shadow);
+        }
+
+        .card-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container" id="widget-root">
+        <div class="top-bar" id="box-main">
+            <div class="rec-indicator"><span class="rec-dot"></span>REC</div>
+            <div style="color: var(--color-episode); font-weight: bold;">
+                EPISODE: <span style="color: var(--color-ep-number);" id="txt-folge">19</span>
+            </div>
+            <div style="color: var(--color-kapitel-label);">
+                KAPITEL <span id="txt-kap-nr">5</span>: <span style="color: var(--color-kapitel-name);" id="txt-kap-name">Vegetarier</span>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="info-card" id="box-quest">
+                <div class="card-title" style="color: var(--color-quest-label);">Aktuelle Quest</div>
+                <div style="font-size: 1.3rem; font-weight: bold; color: var(--color-quest-name);" id="txt-quest">Nicks Anhänger</div>
+            </div>
+
+            <div class="info-card" id="box-kapitel">
+                <div class="card-title" style="color: var(--color-label-timer);">Status / Ziel</div>
+                <div style="font-size: 1.2rem; color: var(--color-game);" id="txt-game">FARMER'S DYNASTY 2</div>
+                <div style="font-size: 1.1rem; margin-top: 5px; color: var(--color-fortschritt);">
+                    Fortschritt: <span id="txt-prozent">19%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <input type="hidden" id="input-game" value="FARMER'S DYNASTY 2">
+    <input type="hidden" id="input-folge" value="19">
+    <input type="hidden" id="input-ziel" value="100">
+    <input type="hidden" id="input-kapitel-nr" value="5">
+    <input type="hidden" id="input-kapitel-name" value="Vegetarier">
+    <input type="hidden" id="input-quest" value="Nicks Anhänger">
+    <input type="hidden" id="input-width" value="1920">
+    <input type="hidden" id="input-height" value="1080">
+    <input type="hidden" id="input-bg" value="">
+    
+    <input type="hidden" id="input-color-green" value="#2ecc71">
+    <input type="hidden" id="input-color-blue" value="#1aafeb">
+    <input type="hidden" id="input-color-glow" value="#2ecc71">
+
+    <input type="hidden" id="input-vis-main" value="visible">
+    <input type="hidden" id="input-vis-quest" value="visible">
+    <input type="hidden" id="input-vis-kapitel" value="visible">
+
+    <script>
+        function liveSync() {
+            // Werte injizieren
+            document.getElementById('txt-game').innerText = document.getElementById('input-game').value;
+            const folge = document.getElementById('input-folge').value;
+            document.getElementById('txt-folge').innerText = folge;
+            document.getElementById('txt-kap-nr').innerText = document.getElementById('input-kapitel-nr').value;
+            document.getElementById('txt-kap-name').innerText = document.getElementById('input-kapitel-name').value;
+            document.getElementById('txt-quest').innerText = document.getElementById('input-quest').value;
+            
+            const ziel = parseInt(document.getElementById('input-ziel').value) || 100;
+            const proz = ziel > 0 ? Math.round((parseInt(folge) / ziel) * 100) : 0;
+            document.getElementById('txt-prozent').innerText = proz + "%";
+
+            // Sichtbarkeiten steuern
+            document.getElementById('box-main').style.display = (document.getElementById('input-vis-main').value === 'hidden') ? 'none' : 'flex';
+            document.getElementById('box-quest').style.display = (document.getElementById('input-vis-quest').value === 'hidden') ? 'none' : 'block';
+            document.getElementById('box-kapitel').style.display = (document.getElementById('input-vis-kapitel').value === 'hidden') ? 'none' : 'block';
+        }
+
+        setInterval(liveSync, 1000);
+        window.onload = liveSync;
+    </script>
+</body>
+</html>

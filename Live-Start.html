@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Live-Start Dynamic Episode Widget - Edition with Control</title>
+    <style>
+        :root {
+            --farm-green: #2ecc71;
+            --farm-blue: #1aafeb;
+            --neon-green: #2ecc71;
+            --neon-glow: rgba(46, 204, 113, 0.8);
+            --accent-blue: #1aafeb;
+            --text-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
+            --font-main: 'Georgia', 'Times New Roman', serif;
+            
+            /* Dynamische Farbvariablen */
+            --color-progress-bar: #2ecc71;
+            --color-timer-bar: #ffb300;
+            
+            /* Eigene Textfarben */
+            --color-text-rec: #ff4757;
+            --color-text-label-fortschritt: #1aafeb;
+            --color-text-werte-fortschritt: #ffffff;
+            --color-text-prozent: #2ecc71;
+            --color-text-label-quest: #ffffff;
+            --color-text-wert-quest: #2ecc71;
+            --color-text-folge-label: #1aafeb;
+            --color-text-folge-wert: #2ecc71;
+            --color-text-label-kapitel: #1aafeb;
+            --color-text-wert-kapitel: #2ecc71;
+        }
+
+        body {
+            background-color: transparent; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            font-family: var(--font-main);
+        }
+
+        /* WIDGET CONTAINER */
+        .widget-container {
+            text-align: center;
+            position: relative;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 30px;
+            border-radius: 20px;
+            border: 2px solid var(--farm-green);
+            box-shadow: 0 0 20px var(--neon-glow);
+            width: 550px;
+        }
+
+        .rec-box {
+            color: var(--color-text-rec);
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            text-shadow: var(--text-shadow);
+        }
+
+        .rec-dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background-color: var(--color-text-rec);
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        .info-text {
+            font-size: 1.3rem;
+            margin: 8px 0;
+            text-shadow: var(--text-shadow);
+        }
+
+        /* FARBEN FÜR LABELS & WERTE */
+        .lbl-fortschritt { color: var(--color-text-label-fortschritt); }
+        .wrt-fortschritt { color: var(--color-text-werte-fortschritt); }
+        .text-prozent { color: var(--color-text-prozent); font-weight: bold; }
+        .lbl-quest { color: var(--color-text-label-quest); }
+        .wrt-quest { color: var(--color-text-wert-quest); }
+        .lbl-folge { color: var(--color-text-folge-label); }
+        .wrt-folge { color: var(--color-text-folge-wert); }
+        .lbl-kapitel { color: var(--color-text-label-kapitel); }
+        .wrt-kapitel { color: var(--color-text-wert-kapitel); }
+
+        /* PROGRESS BARS */
+        .progress-container {
+            background: #222;
+            border-radius: 10px;
+            margin: 15px 0;
+            height: 20px;
+            width: 100%;
+            overflow: hidden;
+            border: 1px solid #444;
+        }
+
+        .progress-bar {
+            background: var(--color-progress-bar);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px var(--color-progress-bar);
+        }
+
+        /* TIMER KREIS */
+        .timer-container {
+            margin-top: 25px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .svg-circle {
+            transform: rotate(-90deg);
+        }
+
+        .circle-bg {
+            fill: none;
+            stroke: #222;
+            stroke-width: 8;
+        }
+
+        .circle-progress {
+            fill: none;
+            stroke: var(--color-timer-bar);
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s linear;
+        }
+
+        .timer-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: var(--text-shadow);
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="widget-container" id="main-widget">
+        <div class="rec-box"><span class="rec-dot"></span>Aufnahme läuft</div>
+        
+        <div class="info-text">
+            <span class="lbl-fortschritt" id="lbl-fortschritt-text">Fortschritt:</span> 
+            <span class="wrt-fortschritt" id="display-stand">0</span> / 
+            <span class="wrt-fortschritt" id="display-ziel">100</span> 
+            <span class="text-prozent" id="display-prozent">(0%)</span>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="main-progress"></div>
+        </div>
+
+        <div class="info-text">
+            <span class="lbl-quest" id="display-label-quest">Quest:</span> 
+            <span class="wrt-quest" id="display-quest">-</span>
+        </div>
+
+        <div class="info-text">
+            <span class="lbl-folge">Folge:</span> 
+            <span class="wrt-folge" id="display-folge-nr">0</span> 
+            <span class="lbl-kapitel" id="display-label-kapitel"> Kapitel:</span> 
+            <span class="wrt-kapitel" id="display-kapitel-info">0 - -</span>
+        </div>
+
+        <div class="timer-container" id="timer-widget">
+            <svg class="svg-circle" width="180" height="180">
+                <circle class="circle-bg" cx="90" cy="90" r="75"></circle>
+                <circle class="circle-progress" id="timer-progress" cx="90" cy="90" r="75" stroke-dasharray="471.23" stroke-dashoffset="0"></circle>
+            </svg>
+            <div class="timer-text" id="timer-display">00:00</div>
+        </div>
+    </div>
+
+    <input type="hidden" id="input-stand" value="19">
+    <input type="hidden" id="input-ziel" value="100">
+    <input type="hidden" id="input-dauer" value="31">
+    <input type="hidden" id="input-label-quest" value="Quest:">
+    <input type="hidden" id="input-quest" value="Nicks Anhänger">
+    <input type="hidden" id="input-label-kapitel" value="Kapitel:">
+    <input type="hidden" id="input-kapitel-nr" value="5">
+    <input type="hidden" id="input-kapitel-name" value="Vegetarier">
+    <input type="hidden" id="input-vis-main" value="visible">
+    <input type="hidden" id="input-vis-timer" value="visible">
+
+    <script>
+        let secondsLeft = 0;
+        let isTimerRunning = true;
+
+        function updateLive() {
+            // Werte aus versteckten Inputs auslesen
+            const stand = parseInt(document.getElementById('input-stand').value) || 0;
+            const ziel = parseInt(document.getElementById('input-ziel').value) || 100;
+            const labelQuest = document.getElementById('input-label-quest').value;
+            const quest = document.getElementById('input-quest').value;
+            const labelKapitel = document.getElementById('input-label-kapitel').value;
+            const kapNr = document.getElementById('input-kapitel-nr').value;
+            const kapName = document.getElementById('input-kapitel-name').value;
+            const visMain = document.getElementById('input-vis-main').value;
+            const visTimer = document.getElementById('input-vis-timer').value;
+
+            // Sichtbarkeiten regeln
+            document.getElementById('main-widget').style.display = (visMain === 'hidden') ? 'none' : 'block';
+            document.getElementById('timer-widget').style.display = (visTimer === 'hidden') ? 'none' : 'inline-block';
+
+            // HTML Ansichten befüllen
+            document.getElementById('display-stand').innerText = stand;
+            document.getElementById('display-ziel').innerText = ziel;
+            document.getElementById('display-label-quest').innerText = labelQuest;
+            document.getElementById('display-quest').innerText = quest;
+            document.getElementById('display-label-kapitel').innerText = " " + labelKapitel;
+            document.getElementById('display-folge-nr').innerText = stand;
+            document.getElementById('display-kapitel-info').innerText = `${kapNr} - ${kapName}`;
+
+            // Prozent & Progressberechnung
+            const prozent = ziel > 0 ? Math.round((stand / ziel) * 100) : 0;
+            document.getElementById('display-prozent').innerText = `(${prozent}%)`;
+            document.getElementById('main-progress').style.width = `${Math.min(prozent, 100)}%`;
+        }
+
+        function setupTimer() {
+            const dauerMinuten = parseInt(document.getElementById('input-dauer').value) || 31;
+            const storageKey = 'widget_v3_timer_seconds';
+            let saved = localStorage.getItem(storageKey);
+            
+            if (saved !== null) {
+                secondsLeft = parseInt(saved);
+            } else {
+                secondsLeft = dauerMinuten * 60;
+                localStorage.setItem(storageKey, secondsLeft);
+            }
+        }
+
+        function updateTimerDisplay() {
+            const display = document.getElementById('timer-display');
+            const mins = Math.floor(secondsLeft / 60);
+            const secs = secondsLeft % 60;
+            display.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function updateTimerCircle() {
+            const dauerMinuten = parseInt(document.getElementById('input-dauer').value) || 31;
+            const totalSeconds = dauerMinuten * 60;
+            const timerCircle = document.getElementById('timer-progress');
+            
+            if (timerCircle && totalSeconds > 0) {
+                const circumference = 2 * Math.PI * 75;
+                const factor = Math.max(0, Math.min(secondsLeft / totalSeconds, 1));
+                timerCircle.style.strokeDashoffset = circumference - (factor * circumference);
+            }
+        }
+
+        // Taktgeber für OBS Ansichten
+        setInterval(() => {
+            updateLive();
+            if (isTimerRunning && secondsLeft > 0) {
+                secondsLeft--;
+                localStorage.setItem('widget_v3_timer_seconds', secondsLeft);
+                updateTimerDisplay();
+                updateTimerCircle();
+            }
+        }, 1000);
+
+        window.onload = () => {
+            updateLive();
+            setupTimer();
+            updateTimerDisplay();
+            updateTimerCircle();
+        };
+    </script>
+</body>
+</html>

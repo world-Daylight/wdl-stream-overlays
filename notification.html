@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Ultimative Stream Notification - Control Edition</title>
+    <style>
+        :root {
+            --neon-primary: #00f2ff;
+            --neon-secondary: #7000ff;
+            --neon-accent: #ff0055;
+            --bg-solid: #000000; 
+        }
+
+        body {
+            background-color: transparent;
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            overflow: hidden;
+            font-family: 'Segoe UI', Roboto, Bold, sans-serif;
+        }
+
+        /* LIVE-WIDGET CARD */
+        .notification-card {
+            position: relative;
+            margin-right: 50px;
+            width: 520px;
+            background-color: var(--bg-solid);
+            background-image: linear-gradient(145deg, #0a0a0a 0%, #000000 100%);
+            border: 3px solid var(--neon-primary);
+            border-radius: 12px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 1), 0 0 20px var(--neon-secondary);
+            transform: translateX(150%) skewX(-5deg);
+            opacity: 0;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1.2);
+            z-index: 10;
+        }
+
+        .notification-card.active {
+            transform: translateX(0) skewX(-5deg);
+            opacity: 1;
+        }
+
+        .icon-container {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(45deg, var(--neon-secondary), var(--neon-primary));
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3.5rem;
+            color: white;
+            box-shadow: 0 0 25px var(--neon-primary);
+            animation: pulse-icon 2s infinite ease-in-out;
+            flex-shrink: 0;
+        }
+
+        @keyframes pulse-icon {
+            0%, 100% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.08); filter: brightness(1.3); }
+        }
+
+        .text-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .main-msg {
+            font-size: 2.3rem;
+            font-weight: 900;
+            color: #ffffff;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 15px var(--neon-primary);
+            line-height: 1.1;
+        }
+
+        .sub-msg {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #ffffff; 
+            margin: 5px 0 0 0;
+            letter-spacing: 0.5px;
+            text-shadow: 2px 2px 0px #000;
+        }
+
+        .progress-track {
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%; height: 8px;
+            background: #111;
+            overflow: hidden;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--neon-secondary), var(--neon-primary), var(--neon-accent));
+        }
+
+        .notification-card.active .progress-bar {
+            animation: progress-fill linear forwards;
+        }
+
+        @keyframes progress-fill {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+
+        /* ==========================================
+            ADMIN-PANEL STYLES
+           ========================================== */
+        #admin-panel {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            width: 360px;
+            max-height: 95vh;
+            overflow-y: auto;
+            background: rgba(15, 15, 15, 0.98);
+            border: 2px solid #7000ff;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            z-index: 9999;
+            font-family: Arial, sans-serif;
+            color: #fff;
+
+            /* Standardmäßig für OBS-Aufnahme unsichtbar */
+            display: none;
+        }
+
+        /* Schaltet das Panel bei Interaktion oder Fokus frei */
+        @media (pointer: fine), (pointer: coarse) {
+            body:hover #admin-panel, 
+            #admin-panel:focus-within {
+                display: block;
+            }
+        }
+
+        #admin-panel h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            color: #00f2ff;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: #ff0055;
+            margin: 12px 0 6px 0;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 8px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.75rem;
+            margin-bottom: 3px;
+            color: #bbb;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 5px;
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: white;
+            font-size: 0.85rem;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            border-color: #00f2ff;
+            outline: none;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .msg-box {
+            background: rgba(255,255,255,0.03);
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #222;
+            margin-bottom: 8px;
+        }
+
+        .btn-copy {
+            width: 100%;
+            padding: 10px;
+            background: #2ecc71;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-copy:hover { background: #27ae60; }
+    </style>
+</head>
+<body>
+
+<div id="admin-panel">
+    <h3>Notification Steuerung</h3>
+    
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label>Intervall (Minuten)</label>
+            <input type="number" id="cfg-intervall" value="10" oninput="saveConfig()">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Anzeigedauer (Sek.)</label>
+            <input type="number" id="cfg-dauer" value="11" oninput="saveConfig()">
+        </div>
+    </div>
+
+    <div class="section-title">Nachricht 1 (z.B. Like)</div>
+    <div class="msg-box">
+        <div class="form-group">
+            <label>Haupttitel</label>
+            <input type="text" id="m0-main" value="DAUMEN HOCH" oninput="saveConfig()">
+        </div>
+        <div class="form-group">
+            <label>Untertitel</label>
+            <input type="text" id="m0-sub" value="Lass ein Like da!" oninput="saveConfig()">
+        </div>
+        <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+                <label>Icon Emoji</label>
+                <input type="text" id="m0-icon" value="👍" oninput="saveConfig()">
+            </div>
+            <div class="form-group" style="flex: 2;">
+                <label>Neon-Farbe (Hex)</label>
+                <input type="text" id="m0-color" value="#00f2ff" oninput="saveConfig()">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Sound Datei</label>
+            <input type="text" id="m0-sound" value="daumen-hoch.mp3" oninput="saveConfig()">
+        </div>
+    </div>
+
+    <div class="section-title">Nachricht 2 (z.B. Abo)</div>
+    <div class="msg-box">
+        <div class="form-group">
+            <label>Haupttitel</label>
+            <input type="text" id="m1-main" value="ABONNIEREN" oninput="saveConfig()">
+        </div>
+        <div class="form-group">
+            <label>Untertitel</label>
+            <input type="text" id="m1-sub" value="Werde Teil der Crew!" oninput="saveConfig()">
+        </div>
+        <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+                <label>Icon Emoji</label>
+                <input type="text" id="m1-icon" value="🔔" oninput="saveConfig()">
+            </div>
+            <div class="form-group" style="flex: 2;">
+                <label>Neon-Farbe (Hex)</label>
+                <input type="text" id="m1-color" value="#7000ff" oninput="saveConfig()">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Sound Datei</label>
+            <input type="text" id="m1-sound" value="ABONNIEREN-v4.mp3" oninput="saveConfig()">
+        </div>
+    </div>
+
+    <div class="section-title">Nachricht 3 (z.B. Kommentare)</div>
+    <div class="msg-box">
+        <div class="form-group">
+            <label>Haupttitel</label>
+            <input type="text" id="m2-main" value="KOMMENTARE" oninput="saveConfig()">
+        </div>
+        <div class="form-group">
+            <label>Untertitel</label>
+            <input type="text" id="m2-sub" value="Hast du Fragen?" oninput="saveConfig()">
+        </div>
+        <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+                <label>Icon Emoji</label>
+                <input type="text" id="m2-icon" value="📝" oninput="saveConfig()">
+            </div>
+            <div class="form-group" style="flex: 2;">
+                <label>Neon-Farbe (Hex)</label>
+                <input type="text" id="m2-color" value="#ff0055" oninput="saveConfig()">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Sound Datei</label>
+            <input type="text" id="m2-sound" value="KOMMENTARE.mp3" oninput="saveConfig()">
+        </div>
+    </div>
+    <button class="btn-copy" id="copy-btn" onclick="copyCodeToClipboard()">Code in Zwischenablage kopieren</button>
+</div>
+
+<div id="card" class="notification-card">
+    <div id="icon" class="icon-container">💎</div>
+    <div class="text-content">
+        <p id="txt-main" class="main-msg">Initialisierung...</p>
+        <p id="txt-sub" class="sub-msg">Bereit machen</p>
+    </div>
+    <div class="progress-track">
+        <div id="bar" class="progress-bar"></div>
+    </div>
+</div>
+
+<audio id="sfx-dynamic" preload="auto"></audio>
+
+<script>
+    let liveConfig = { intervall: 12, dauer: 11 };
+    let liveMessages = [{}, {}, {}];
+    let index = 0;
+    let timerId = null;
+
+    const card = document.getElementById('card');
+    const sfx = document.getElementById('sfx-dynamic');
+
+    window.onload = () => {
+        if (localStorage.getItem('notify_cfg_intervall')) {
+            document.getElementById('cfg-intervall').value = localStorage.getItem('notify_cfg_intervall');
+            document.getElementById('cfg-dauer').value = localStorage.getItem('notify_cfg_dauer');
+            
+            for (let i = 0; i < 3; i++) {
+                document.getElementById(`m${i}-main`).value = localStorage.getItem(`notify_m${i}_main`);
+                document.getElementById(`m${i}-sub`).value = localStorage.getItem(`notify_m${i}_sub`);
+                document.getElementById(`m${i}-icon`).value = localStorage.getItem(`notify_m${i}_icon`);
+                document.getElementById(`m${i}-color`).value = localStorage.getItem(`notify_m${i}_color`);
+                document.getElementById(`m${i}-sound`).value = localStorage.getItem(`notify_m${i}_sound`);
+            }
+        }
+
+        if (window.location.search.includes('control=1')) {
+            const style = document.createElement('style');
+            style.innerHTML = '#admin-panel { display: block !important; }';
+            document.head.appendChild(style);
+        }
+
+        loadDataFromInputs();
+        setTimeout(trigger, 8000); 
+        startLoop();
+    };
+
+    function loadDataFromInputs() {
+        liveConfig.intervall = parseFloat(document.getElementById('cfg-intervall').value) || 12;
+        liveConfig.dauer = parseFloat(document.getElementById('cfg-dauer').value) || 11;
+
+        for (let i = 0; i < 3; i++) {
+            liveMessages[i] = {
+                main: document.getElementById(`m${i}-main`).value,
+                sub: document.getElementById(`m${i}-sub`).value,
+                icon: document.getElementById(`m${i}-icon`).value,
+                color: document.getElementById(`m${i}-color`).value,
+                sound: document.getElementById(`m${i}-sound`).value
+            };
+        }
+    }
+
+    function saveConfig() {
+        loadDataFromInputs();
+
+        localStorage.setItem('notify_cfg_intervall', document.getElementById('cfg-intervall').value);
+        localStorage.setItem('notify_cfg_dauer', document.getElementById('cfg-dauer').value);
+        
+        for (let i = 0; i < 3; i++) {
+            localStorage.setItem(`notify_m${i}_main`, liveMessages[i].main);
+            localStorage.setItem(`notify_m${i}_sub`, liveMessages[i].sub);
+            localStorage.setItem(`notify_m${i}_icon`, liveMessages[i].icon);
+            localStorage.setItem(`notify_m${i}_color`, liveMessages[i].color);
+            localStorage.setItem(`notify_m${i}_sound`, liveMessages[i].sound);
+        }
+
+        startLoop();
+    }
+
+    function startLoop() {
+        if (timerId) clearInterval(timerId);
+        timerId = setInterval(trigger, liveConfig.intervall * 60 * 1000);
+    }
+
+    function trigger() {
+        const m = liveMessages[index];
+        if (!m || !m.main) return;
+        
+        document.getElementById('txt-main').innerText = m.main;
+        document.getElementById('txt-sub').innerText = m.sub;
+        document.getElementById('icon').innerText = m.icon;
+        
+        document.documentElement.style.setProperty('--neon-primary', m.color);
+
+        if (m.sound) {
+            sfx.src = m.sound;
+            sfx.currentTime = 0;
+            sfx.volume = 0.4;
+            sfx.play().catch(e => console.log("Interaktion nötig"));
+        }
+
+        document.getElementById('bar').style.animationDuration = liveConfig.dauer + "s";
+        card.classList.add('active');
+
+        setTimeout(() => {
+            card.classList.remove('active');
+            index = (index + 1) % liveMessages.length;
+        }, liveConfig.dauer * 1000);
+    }
+
+    function copyCodeToClipboard() {
+        const intervallVal = document.getElementById('cfg-intervall').value;
+        const dauerVal = document.getElementById('cfg-dauer').value;
+
+        let currentHTML = document.documentElement.outerHTML;
+
+        currentHTML = currentHTML.replace(/id="cfg-intervall"\s+value="\d+"/, `id="cfg-intervall" value="${intervallVal}"`);
+        currentHTML = currentHTML.replace(/id="cfg-dauer"\s+value="\d+"/, `id="cfg-dauer" value="${dauerVal}"`);
+
+        for (let i = 0; i < 3; i++) {
+            const mainVal = document.getElementById(`m${i}-main`).value;
+            const subVal = document.getElementById(`m${i}-sub`).value;
+            const iconVal = document.getElementById(`m${i}-icon`).value;
+            const colorVal = document.getElementById(`m${i}-color`).value;
+            const soundVal = document.getElementById(`m${i}-sound`).value;
+
+            currentHTML = currentHTML.replace(new RegExp(`id="m${i}-main"\\s+value=".*?"`), `id="m${i}-main" value="${mainVal}"`);
+            currentHTML = currentHTML.replace(new RegExp(`id="m${i}-sub"\\s+value=".*?"`), `id="m${i}-sub" value="${subVal}"`);
+            currentHTML = currentHTML.replace(new RegExp(`id="m${i}-icon"\\s+value=".*?"`), `id="m${i}-icon" value="${iconVal}"`);
+            currentHTML = currentHTML.replace(new RegExp(`id="m${i}-color"\\s+value=".*?"`), `id="m${i}-color" value="${colorVal}"`);
+            currentHTML = currentHTML.replace(new RegExp(`id="m${i}-sound"\\s+value=".*?"`), `id="m${i}-sound" value="${soundVal}"`);
+        }
+
+        const fullFileContent = "<!DOCTYPE html>\n" + currentHTML;
+
+        navigator.clipboard.writeText(fullFileContent).then(() => {
+            const btn = document.getElementById('copy-btn');
+            btn.innerText = "✓ Code kopiert! Jetzt Datei überschreiben";
+            btn.style.background = "#27ae60";
+            setTimeout(() => {
+                btn.innerText = "Code in Zwischenablage kopieren";
+                btn.style.background = "#2ecc71";
+            }, 3000);
+        }).catch(err => {
+            alert("Fehler beim Kopieren.");
+        });
+    }
+</script>
+
+</body>
+</html>
