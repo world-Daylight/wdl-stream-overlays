@@ -22,6 +22,10 @@ Dieses Paket enthält alle wichtigen Komponenten für unsere Live-Streams:
 
 ---
 
+## Mit Verbesserte Erweiterungs Overlay Live-Start-v5 
+<img width="587" height="735" alt="Live-Start-v5" src="https://github.com/user-attachments/assets/62b6e443-476d-412c-81ae-342ed778843f" />  
+
+
 ## 🛠️ Einrichtung & Verwendung (Plattformunabhängig)
 
 Die Overlays basieren auf HTML5/CSS/JS und sind somit mit **jeder modernen Streaming-Software** (z. B. OBS Studio, Streamlabs, vMix, Twitch Studio) kompatibel.
