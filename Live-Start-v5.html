@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Live-Start Dynamic Episode Widget - Edition with Control</title>
+    <style>
+        :root {
+            --farm-green: #2ecc71;
+            --farm-blue: #1aafeb;
+            --neon-green: #2ecc71;
+            --neon-glow: rgba(46, 204, 113, 0.8);
+            --accent-blue: #1aafeb;
+            --text-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
+            --font-main: 'Georgia', 'Times New Roman', serif;
+            
+            /* Dynamische Farbvariablen */
+            --color-progress-bar: #2ecc71;
+            --color-timer-bar: #ffb300;
+            
+            /* Eigene Textfarben */
+            --color-text-rec: #ff4757;
+            --color-text-label-fortschritt: #1aafeb;
+            --color-text-werte-fortschritt: #ffffff;
+            --color-text-prozent: #2ecc71;
+            --color-text-label-quest: #ffffff;
+            --color-text-wert-quest: #2ecc71;
+            --color-text-folge-label: #1aafeb;
+            --color-text-folge-wert: #2ecc71;
+            --color-text-label-kapitel: #1aafeb;
+            --color-text-wert-kapitel: #2ecc71;
+        }
+
+        body {
+            background-color: transparent; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            font-family: var(--font-main);
+        }
+
+        /* WIDGET CONTAINER */
+        .widget-container {
+            text-align: center;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* KREIS-BEREICH */
+        .progress-box {
+            position: relative;
+            width: 240px;
+            height: 240px;
+            margin: 0 auto;
+        }
+
+        svg {
+            transform: rotate(-90deg);
+            filter: drop-shadow(0 0 10px var(--neon-glow));
+        }
+
+        circle {
+            fill: none;
+            stroke-width: 12;
+        }
+
+        .track { stroke: rgba(0, 0, 0, 0.4); }
+         
+        .progress-bar {
+            stroke: var(--color-progress-bar);
+            stroke-linecap: round;
+            stroke-dasharray: 565.48; 
+            stroke-dashoffset: 565.48;
+            transition: stroke-dashoffset 0.5s ease-in-out;
+            animation: pulse-glow 3s infinite ease-in-out;
+        }
+
+        /* TIMER KREIS */
+        .timer-bar {
+            stroke: var(--color-timer-bar);
+            stroke-width: 6;
+            stroke-linecap: round;
+            stroke-dasharray: 471.23; 
+            stroke-dashoffset: 471.23;
+            transition: stroke-dashoffset 1s linear;
+        }
+
+        .outer-ring {
+            stroke: rgba(255, 255, 255, 0.15);
+            stroke-width: 2;
+            stroke-dasharray: 10, 15;
+            animation: rotate-ring 30s linear infinite;
+            transform-origin: center;
+        }
+
+        @keyframes rotate-ring { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes pulse-glow {
+            0%, 100% { filter: drop-shadow(0 0 8px var(--neon-glow)); opacity: 0.8; }
+            50% { filter: drop-shadow(0 0 20px var(--color-progress-bar)); opacity: 1; }
+        }
+
+        /* TEXT IM KREIS */
+        .inner-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-shadow: var(--text-shadow);
+            width: 100%;
+        }
+
+        .status-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: bold;
+            color: var(--color-text-label-fortschritt);
+            margin-bottom: 2px;
+        }
+
+        .ratio { font-size: 2rem; font-weight: bold; margin: 0; color: var(--color-text-werte-fortschritt); }
+        .percent-display { font-size: 1.4rem; font-weight: bold; color: var(--color-text-prozent); margin-top: 5px; }
+
+        /* INFOS UNTER DEM KREIS */
+        .footer-info { margin-top: 20px; text-shadow: var(--text-shadow); }
+        .episode-title { font-size: 1.8rem; color: var(--color-text-folge-label); text-transform: uppercase; letter-spacing: 4px; margin: 0; }
+        .episode-title span.ep-mark { color: var(--color-text-folge-wert); }
+        .episode-title span.ep-val { color: var(--color-text-folge-wert); font-weight: bold; }
+         
+        .rec-dot { 
+            color: var(--color-text-rec); 
+            font-weight: bold; 
+            animation: blink 1s infinite; 
+            margin-bottom: 15px; 
+            font-size: 1.2rem;
+            text-shadow: var(--text-shadow);
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+
+        /* ==========================================
+            ADMIN-PANEL STYLES
+           ========================================== */
+        #admin-panel {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            width: 360px;
+            max-height: 95vh;
+            overflow-y: auto;
+            background: rgba(15, 15, 15, 0.98);
+            border: 2px solid #1aafeb;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 0 25px rgba(0,0,0,0.8);
+            z-index: 9999;
+            font-family: Arial, sans-serif;
+            color: #fff;
+            text-align: left;
+            display: none; 
+        }
+
+        @media (pointer: fine), (pointer: coarse) {
+            body:hover #admin-panel, 
+            #admin-panel:focus-within {
+                display: block;
+            }
+        }
+
+        #admin-panel h3 {
+            margin: 0 0 12px 0;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #1aafeb;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+
+        .panel-section {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #ff0055;
+            margin: 12px 0 6px 0;
+            font-weight: bold;
+            border-bottom: 1px dashed #444;
+            padding-bottom: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.75rem;
+            margin-bottom: 4px;
+            color: #bbb;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 6px;
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: white;
+            font-size: 0.85rem;
+            box-sizing: border-box;
+        }
+
+        .hotkey-input {
+            text-align: center;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #2ecc71 !important;
+            cursor: pointer;
+        }
+
+        .color-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 3px 6px;
+        }
+
+        .color-input-wrapper input {
+            border: none;
+            padding: 3px;
+            background: transparent;
+            color: white;
+            font-size: 0.85rem;
+            width: 100%;
+        }
+
+        .color-preview-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border: 1px solid #555;
+            flex-shrink: 0;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            background: #1a1a1a;
+            padding: 6px;
+            border-radius: 4px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            display: inline;
+            margin: 0;
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: #ddd;
+        }
+
+        .form-group input:focus {
+            border-color: #2ecc71;
+            outline: none;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .timer-info {
+            font-size: 11px;
+            color: #ffb300;
+            margin-top: 2px;
+            font-weight: bold;
+        }
+
+        .timer-btn-container {
+            display: flex;
+            gap: 6px;
+            margin-top: 6px;
+            margin-bottom: 10px;
+        }
+
+        .timer-btn {
+            flex: 1;
+            padding: 5px;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: opacity 0.2s;
+        }
+
+        .timer-btn:hover {
+            opacity: 0.8;
+        }
+
+        #btn-toggle-timer { background-color: #2ecc71; }
+        #btn-toggle-timer.paused { background-color: #f1c40f; color: #000; }
+        #btn-reset-timer { background-color: #e74c3c; }
+    </style>
+</head>
+<body>
+
+<div id="admin-panel">
+    <h3>Widget Steuerung</h3>
+    
+    <div class="panel-section">Sichtbarkeit (Ein-/Ausblenden)</div>
+    <div class="checkbox-group"><input type="checkbox" id="check-show-rec" checked onchange="updateLive()"><label for="check-show-rec">🔴 REC-Punkt</label></div>
+    <div class="checkbox-group"><input type="checkbox" id="check-show-kreis" checked onchange="updateLive()"><label for="check-show-kreis">⭕ Fortschritts-Kreis (Hauptring)</label></div>
+    <div class="checkbox-group"><input type="checkbox" id="check-show-timerring" checked onchange="updateLive()"><label for="check-show-timerring">⏱️ Timer-Kreis (Innenring)</label></div>
+    <div class="checkbox-group"><input type="checkbox" id="check-show-inner-text" checked onchange="updateLive()"><label for="check-show-inner-text">🔢 Texte im Kreis (Fortschritt/%)</label></div>
+    <div class="checkbox-group"><input type="checkbox" id="check-show-quest" checked onchange="updateLive()"><label for="check-show-quest">🗺️ Quest-Zeile</label></div>
+    <div class="checkbox-group"><input type="checkbox" id="check-show-folge" checked onchange="updateLive()"><label for="check-show-folge">🔢 Folgen-Nummer unten</label></div>
+    <div class="checkbox-group"><input type="checkbox" id="check-show-kapitel" checked onchange="updateLive()"><label for="check-show-kapitel">📚 Kapitel-Zeile</label></div>
+
+    <div class="panel-section">Timer &amp; Hotkeys</div>
+    <div class="form-group">
+        <label>Dauer pro Folge (Minuten)</label>
+        <input type="number" id="input-dauer" value="31" oninput="resetTimerOnInput()">
+    </div>
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label>Key: Pause/Start</label>
+            <input type="text" id="input-hotkey-pause" class="hotkey-input" value="p" readonly>
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Key: Reset</label>
+            <input type="text" id="input-hotkey-reset" class="hotkey-input" value="r" readonly>
+        </div>
+    </div>
+    <div id="timer-display" class="timer-info">Restzeit bis Wechsel: --:--</div>
+    <div class="timer-btn-container">
+        <button id="btn-toggle-timer" class="timer-btn" onclick="toggleTimer()">Pause</button>
+        <button id="btn-reset-timer" class="timer-btn" onclick="resetTimerOnInput()">Reset</button>
+    </div>
+
+    <div class="panel-section">🔴 REC Feld</div>
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label>REC Text</label>
+            <input type="text" id="input-text-rec" value="● REC" oninput="updateLive()">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Farbe</label>
+            <div class="color-input-wrapper">
+                <div class="color-preview-box" id="preview-text-rec"></div>
+                <input type="text" id="input-color-text-rec" value="#ff4757" oninput="updateLive()">
+            </div>
+        </div>
+    </div>
+
+    <div class="panel-section">⭕ Kreis-Texte &amp; Werte</div>
+    <div class="form-group">
+        <label>Kreis Label-Text</label>
+        <input type="text" id="input-text-fortschritt" value="Fortschritt" oninput="updateLive()">
+    </div>
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label>Farbe Label</label>
+            <div class="color-input-wrapper">
+                <div class="color-preview-box" id="preview-label-fortschritt"></div>
+                <input type="text" id="input-color-text-label-fortschritt" value="#1aafeb" oninput="updateLive()">
+            </div>
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Farbe Werte</label>
+            <div class="color-input-wrapper">
+                <div class="color-preview-box" id="preview-werte-fortschritt"></div>
+                <input type="text" id="input-color-text-werte-fortschritt" value="#ffffff" oninput="updateLive()">
+            </div>
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Farbe %</label>
+            <div class="color-input-wrapper">
+                <div class="color-preview-box" id="preview-prozent"></div>
+                <input type="text" id="input-color-text-prozent" value="#2ecc71" oninput="updateLive()">
+            </div>
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label>Aktueller Stand</label>
+            <input type="number" id="input-stand" value="38" oninput="updateLive()">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Ziel / Max</label>
+            <input type="number" id="input-ziel" value="100" oninput="updateLive()">
+        </div>
+    </div>
+
+    <div class="panel-section">🗺️ Quest Einstellungen</div>
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label>Quest Label</label>
+            <input type="text" id="input-label-quest" value="Quest:" oninput="updateLive()">
+        </div>
+        <div class="form-group" style="flex: 1.5;">
+            <label>Quest Name</label>
+            <input type="text" id="input-quest" value="Nicks Anhänger" oninput="updateLive()">
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label>Farbe Label</label>
+            <div class="color-input-wrapper">
+                <div class="color-preview-box" id="preview-label-quest"></div>
+                <input type="text" id="input-color-text-label-quest" value="#ffffff" oninput="updateLive()">
+            </div>
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Farbe Inhalt</label>
+            <div class="color-input-wrapper">
+                <div class="color-preview-box" id="preview-wert-quest"></div>
+                <input type="text" id="input-color-text-wert-quest" value="#2ecc71" oninput="updateLive()">
+            </div>
+        </div>
+    </div>
+
+    <div class="panel-section">🔢 Folgen-Zeile unten</div>
+    <div class="form-group">
+        <label>Folgen Haupt-Label</label>
+        <input type="text" id="input-text-folge-label" value="Folge" oninput="updateLive()">
+    </div>
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label>Farbe Label</label>
+            <div class="color-input-wrapper">
+                <div class="color-preview-box" id="preview-folge-label"></div>
+                <input type="text" id="input-color-text-folge-label" value="#1aafeb" oninput="updateLive()">
+            </div>
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Farbe Wert</label>
+            <div class="color-input-wrapper">
+                <div class="color-preview-box" id="preview-folge-wert"></div>
+                <input type="text" id="input-color-text-folge-wert" value="#2ecc71" oninput="updateLive()">
+            </div>
+        </div>
+    </div>
+
+    <div class="panel-section">📚 Kapitel Einstellungen</div>
+    <div class="form-row">
+        <div class="form-group" style="flex: 1.2;">
+            <label>Kapitel Label</label>
+            <input type="text" id="input-label-kapitel" value="Kapitel:" oninput="updateLive()">
+        </div>
+        <div class="form-group" style="flex: 0.8;">
+            <label>Kapitel Nr.</label>
+            <input type="number" id="input-kapitel-nr" value="13" oninput="updateLive()">
+        </div>
+        <div class="form-group" style="flex: 1.5;">
+            <label>Kapitel Name</label>
+            <input type="text" id="input-kapitel-name" value="Vegetarier" oninput="updateLive()">
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label>Farbe Label</label>
+            <div class="color-input-wrapper">
+                <div class="color-preview-box" id="preview-label-kapitel"></div>
+                <input type="text" id="input-color-text-label-kapitel" value="#1aafeb" oninput="updateLive()">
+            </div>
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Farbe Inhalt</label>
+            <div class="color-input-wrapper">
+                <div class="color-preview-box" id="preview-wert-kapitel"></div>
+                <input type="text" id="input-color-text-wert-kapitel" value="#2ecc71" oninput="updateLive()">
+            </div>
+        </div>
+    </div>
+
+    <div class="panel-section">🎨 Ringe &amp; Effekte (Farbeinstellungen)</div>
+    <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+            <label>Neon Basis</label>
+            <div class="color-input-wrapper">
+                <div class="color-preview-box" id="preview-neon"></div>
+                <input type="text" id="input-color-neon" value="#2ecc71" oninput="updateLive()">
+            </div>
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Progress</label>
+            <div class="color-input-wrapper">
+                <div class="color-preview-box" id="preview-progress"></div>
+                <input type="text" id="input-color-progress" value="#2ecc71" oninput="updateLive()">
+            </div>
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Timer Ring</label>
+            <div class="color-input-wrapper">
+                <div class="color-preview-box" id="preview-timer"></div>
+                <input type="text" id="input-color-timer" value="#ffb300" oninput="updateLive()">
+            </div>
+        </div>
+    </div>
+
+    <p style="margin: 5px 0 0 0; font-size: 10px; color: #2ecc71; text-align: center; font-weight: bold;">Werte &amp; Farben werden live gesichert!</p>
+</div>
+
+<div class="widget-container">
+    <div class="rec-dot" id="live-rec-container">● REC</div>
+
+    <div class="progress-box" id="live-progress-box">
+        <svg width="240" height="240">
+            <circle id="live-outer-ring" class="outer-ring" cx="120" cy="120" r="115"></circle>
+            <circle id="live-track-main" class="track" cx="120" cy="120" r="90"></circle>
+            <circle id="progress" class="progress-bar" cx="120" cy="120" r="90"></circle>
+            <circle id="live-track-timer" class="track" cx="120" cy="120" r="75" style="stroke-width: 4; opacity: 0.2;"></circle>
+            <circle id="timer-progress" class="timer-bar" cx="120" cy="120" r="75"></circle>
+        </svg>
+        <div class="inner-content" id="live-inner-content">    
+            <div class="status-label" id="live-text-fortschritt">Fortschritt</div>
+            <div class="ratio"><span id="curr-val">0</span> / <span id="max-val">100</span></div>
+            <div class="percent-display"><span id="perc-val">0</span>%</div>
+        </div>
+    </div>
+    
+    <h2 id="live-quest-container" style="margin: 15px 0 0 0; letter-spacing: 2px; font-size: 1.5rem; text-shadow: var(--text-shadow); font-family: var(--font-main);">
+        <span id="live-label-quest" style="color: var(--color-text-label-quest);">Quest:</span> <span id="live-quest" style="color: var(--color-text-wert-quest);">Nicks Anhänger</span>
+    </h2>
+    
+    <div class="footer-info" id="live-folge-container">
+        <div class="episode-title"><span id="live-text-folge-label">Folge</span> <span class="ep-mark">#</span><span class="ep-val" id="ep-num">19</span></div>
+    </div>
+    
+    <h2 id="live-kapitel-container" style="margin:15px 0 0 0; letter-spacing: 2px; font-family: var(--font-main); font-size: 1.5rem; text-shadow: var(--text-shadow);">
+        <span id="live-full-kapitel-label" style="color: var(--color-text-label-kapitel);"><span id="live-label-kapitel">Kapitel:</span> <span id="live-kapitel-nr">5</span>: </span>
+        <span id="live-kapitel-name" style="color: var(--color-text-wert-kapitel);">Vegetarier</span>
+    </h2>
+</div>
+
+<script>
+    let secondsLeft = 0;
+    let timerInterval = null;
+    let isTimerRunning = true;
+    
+    let hotkeyPause = localStorage.getItem('widget_v3_key_pause') || 'p';
+    let hotkeyReset = localStorage.getItem('widget_v3_key_reset') || 'r';
+
+    window.onload = () => {
+        document.getElementById('input-hotkey-pause').value = hotkeyPause;
+        document.getElementById('input-hotkey-reset').value = hotkeyReset;
+
+        if (localStorage.getItem('widget_v3_stand')) {
+            document.getElementById('input-stand').value = localStorage.getItem('widget_v3_stand');
+            document.getElementById('input-ziel').value = localStorage.getItem('widget_v3_ziel') || "100";
+            document.getElementById('input-quest').value = localStorage.getItem('widget_v3_quest') || "Nicks Anhänger";
+            document.getElementById('input-label-quest').value = localStorage.getItem('widget_v3_label_quest') || "Quest:";
+            document.getElementById('input-label-kapitel').value = localStorage.getItem('widget_v3_label_kapitel') || "Kapitel:";
+            document.getElementById('input-kapitel-nr').value = localStorage.getItem('widget_v3_kapitel_nr') || "13";
+            document.getElementById('input-kapitel-name').value = localStorage.getItem('widget_v3_kapitel_name') || "Vegetarier";
+            document.getElementById('input-dauer').value = localStorage.getItem('widget_v3_dauer') || "31";
+            
+            document.getElementById('input-text-rec').value = localStorage.getItem('widget_v3_text_rec') || "● REC";
+            document.getElementById('input-text-fortschritt').value = localStorage.getItem('widget_v3_text_fortschritt') || "Fortschritt";
+            document.getElementById('input-text-folge-label').value = localStorage.getItem('widget_v3_text_folge_label') || "Folge";
+
+            document.getElementById('input-color-neon').value = localStorage.getItem('widget_v3_color_neon') || "#2ecc71";
+            document.getElementById('input-color-progress').value = localStorage.getItem('widget_v3_color_progress') || "#2ecc71";
+            document.getElementById('input-color-timer').value = localStorage.getItem('widget_v3_color_timer') || "#ffb300";
+            
+            document.getElementById('input-color-text-rec').value = localStorage.getItem('widget_v3_col_rec') || "#ff4757";
+            document.getElementById('input-color-text-label-fortschritt').value = localStorage.getItem('widget_v3_col_lbl_fort') || "#1aafeb";
+            document.getElementById('input-color-text-werte-fortschritt').value = localStorage.getItem('widget_v3_col_wrt_fort') || "#ffffff";
+            document.getElementById('input-color-text-prozent').value = localStorage.getItem('widget_v3_col_proz') || "#2ecc71";
+            document.getElementById('input-color-text-label-quest').value = localStorage.getItem('widget_v3_col_lbl_qst') || "#ffffff";
+            document.getElementById('input-color-text-wert-quest').value = localStorage.getItem('widget_v3_col_wrt_qst') || "#2ecc71";
+            document.getElementById('input-color-text-folge-label').value = localStorage.getItem('widget_v3_col_lbl_flg') || "#1aafeb";
+            document.getElementById('input-color-text-folge-wert').value = localStorage.getItem('widget_v3_col_wrt_flg') || "#2ecc71";
+            document.getElementById('input-color-text-label-kapitel').value = localStorage.getItem('widget_v3_col_lbl_kap') || "#1aafeb";
+            document.getElementById('input-color-text-wert-kapitel').value = localStorage.getItem('widget_v3_col_wrt_kap') || "#2ecc71";
+
+            const checks = ['rec', 'kreis', 'timerring', 'inner-text', 'quest', 'folge', 'kapitel'];
+            checks.forEach(c => {
+                const val = localStorage.getItem('widget_v3_show_' + c);
+                if (val !== null) document.getElementById('check-show-' + c).checked = (val === 'true');
+            });
+
+            if (localStorage.getItem('widget_v3_timer_running') !== null) {
+                isTimerRunning = localStorage.getItem('widget_v3_timer_running') === 'true';
+            }
+        }
+
+        if (window.location.search.includes('control=1')) {
+            const style = document.createElement('style');
+            style.innerHTML = '#admin-panel { display: block !important; }';
+            document.head.appendChild(style);
+        }
+
+        // Hotkey Eingabe Listener initialisieren
+        document.querySelectorAll('.hotkey-input').forEach(input => {
+            input.addEventListener('keydown', (e) => {
+                e.preventDefault();
+                const key = e.key.toLowerCase();
+                input.value = key;
+                if (input.id === 'input-hotkey-pause') {
+                    hotkeyPause = key;
+                    localStorage.setItem('widget_v3_key_pause', key);
+                } else {
+                    hotkeyReset = key;
+                    localStorage.setItem('widget_v3_key_reset', key);
+                }
+            });
+        });
+
+        initTimer();
+        updateLive();
+    };
+
+    function synchronizeAttributes() {
+        const ids = ['input-stand', 'input-ziel', 'input-quest', 'input-label-quest', 'input-label-kapitel', 'input-kapitel-nr', 'input-kapitel-name', 'input-dauer', 'input-color-neon', 'input-color-progress', 'input-color-timer', 'check-show-rec', 'check-show-kreis', 'check-show-timerring', 'check-show-inner-text', 'check-show-quest', 'check-show-folge', 'check-show-kapitel', 'input-text-rec', 'input-text-fortschritt', 'input-text-folge-label', 'input-color-text-rec', 'input-color-text-label-fortschritt', 'input-color-text-werte-fortschritt', 'input-color-text-prozent', 'input-color-text-label-quest', 'input-color-text-wert-quest', 'input-color-text-folge-label', 'input-color-text-folge-wert', 'input-color-text-label-kapitel', 'input-color-text-wert-kapitel'];
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                if(el.type === 'checkbox') {
+                    if(el.checked) el.setAttribute('checked', 'checked');
+                    else el.removeAttribute('checked');
+                } else {
+                    el.setAttribute('value', el.value);
+                }
+            }
+        });
+    }
+
+    function updateLive() {
+        const stand = parseInt(document.getElementById('input-stand').value) || 0;
+        const ziel = parseInt(document.getElementById('input-ziel').value) || 100;
+        const labelQuest = document.getElementById('input-label-quest').value;
+        const questInput = document.getElementById('input-quest').value;
+        const labelKapitel = document.getElementById('input-label-kapitel').value;
+        const kapitelNr = document.getElementById('input-kapitel-nr').value;
+        const kapitelName = document.getElementById('input-kapitel-name').value;
+        const dauer = parseInt(document.getElementById('input-dauer').value) || 31;
+        
+        const txtRec = document.getElementById('input-text-rec').value;
+        const txtFortschritt = document.getElementById('input-text-fortschritt').value;
+        const txtFolgeLabel = document.getElementById('input-text-folge-label').value;
+
+        const colNeon = document.getElementById('input-color-neon').value;
+        const colProgress = document.getElementById('input-color-progress').value;
+        const colTimer = document.getElementById('input-color-timer').value;
+
+        const cRec = document.getElementById('input-color-text-rec').value;
+        const cLblFort = document.getElementById('input-color-text-label-fortschritt').value;
+        const cWrtFort = document.getElementById('input-color-text-werte-fortschritt').value;
+        const cProz = document.getElementById('input-color-text-prozent').value;
+        const cLblQst = document.getElementById('input-color-text-label-quest').value;
+        const cWrtQst = document.getElementById('input-color-text-wert-quest').value;
+        const cLblFlg = document.getElementById('input-color-text-folge-label').value;
+        const cWrtFlg = document.getElementById('input-color-text-folge-wert').value;
+        const cLblKap = document.getElementById('input-color-text-label-kapitel').value;
+        const cWrtKap = document.getElementById('input-color-text-wert-kapitel').value;
+
+        // Mini-Vorschau-Boxen updaten
+        document.getElementById('preview-text-rec').style.backgroundColor = cRec;
+        document.getElementById('preview-label-fortschritt').style.backgroundColor = cLblFort;
+        document.getElementById('preview-werte-fortschritt').style.backgroundColor = cWrtFort;
+        document.getElementById('preview-prozent').style.backgroundColor = cProz;
+        document.getElementById('preview-label-quest').style.backgroundColor = cLblQst;
+        document.getElementById('preview-wert-quest').style.backgroundColor = cWrtQst;
+        document.getElementById('preview-folge-label').style.backgroundColor = cLblFlg;
+        document.getElementById('preview-folge-wert').style.backgroundColor = cWrtFlg;
+        document.getElementById('preview-label-kapitel').style.backgroundColor = cLblKap;
+        document.getElementById('preview-wert-kapitel').style.backgroundColor = cWrtKap;
+        document.getElementById('preview-neon').style.backgroundColor = colNeon;
+        document.getElementById('preview-progress').style.backgroundColor = colProgress;
+        document.getElementById('preview-timer').style.backgroundColor = colTimer;
+
+        const percent = Math.round((stand / ziel) * 100) || 0;
+
+        // CSS Root Variablen setzen
+        document.documentElement.style.setProperty('--color-progress-bar', colProgress);
+        document.documentElement.style.setProperty('--color-timer-bar', colTimer);
+        document.documentElement.style.setProperty('--neon-green', colNeon);
+        document.documentElement.style.setProperty('--color-text-rec', cRec);
+        document.documentElement.style.setProperty('--color-text-label-fortschritt', cLblFort);
+        document.documentElement.style.setProperty('--color-text-werte-fortschritt', cWrtFort);
+        document.documentElement.style.setProperty('--color-text-prozent', cProz);
+        document.documentElement.style.setProperty('--color-text-label-quest', cLblQst);
+        document.documentElement.style.setProperty('--color-text-wert-quest', cWrtQst);
+        document.documentElement.style.setProperty('--color-text-folge-label', cLblFlg);
+        document.documentElement.style.setProperty('--color-text-folge-wert', cWrtFlg);
+        document.documentElement.style.setProperty('--color-text-label-kapitel', cLblKap);
+        document.documentElement.style.setProperty('--color-text-wert-kapitel', cWrtKap);
+        
+        if (colNeon.startsWith('#') && colNeon.length === 7) {
+            const r = parseInt(colNeon.substr(1,2), 16) || 0;
+            const g = parseInt(colNeon.substr(3,2), 16) || 0;
+            const b = parseInt(colNeon.substr(5,2), 16) || 0;
+            document.documentElement.style.setProperty('--neon-glow', `rgba(${r}, ${g}, ${b}, 0.8)`);
+        }
+
+        // Sichtbarkeiten regeln
+        const checks = ['rec', 'kreis', 'timerring', 'inner-text', 'quest', 'folge', 'kapitel'];
+        checks.forEach(c => {
+            const isChecked = document.getElementById('check-show-' + c).checked;
+            const liveEl = document.getElementById('live-' + c + (c.includes('quest') || c.includes('kapitel') || c.includes('folge') || c.includes('rec') ? '-container' : (c === 'inner-text' ? '-content' : '-box')));
+            if(liveEl) {
+                if(c === 'quest' || c === 'kapitel') {
+                    liveEl.style.display = isChecked ? 'block' : 'none';
+                } else {
+                    liveEl.style.display = isChecked ? '' : 'none';
+                }
+            }
+            localStorage.setItem('widget_v3_show_' + c, isChecked);
+        });
+
+        // Falls Ringe ausgeblendet sind
+        const showKreis = document.getElementById('check-show-kreis').checked;
+        const showTimerring = document.getElementById('check-show-timerring').checked;
+        if (!showKreis && !showTimerring) {
+            document.getElementById('live-progress-box').style.display = 'none';
+        } else {
+            document.getElementById('live-progress-box').style.display = 'block';
+            document.getElementById('live-outer-ring').style.visibility = showKreis ? 'visible' : 'hidden';
+            document.getElementById('live-track-main').style.visibility = showKreis ? 'visible' : 'hidden';
+            document.getElementById('progress').style.visibility = showKreis ? 'visible' : 'hidden';
+            document.getElementById('live-track-timer').style.visibility = showTimerring ? 'visible' : 'hidden';
+            document.getElementById('timer-progress').style.visibility = showTimerring ? 'visible' : 'hidden';
+        }
+
+        // Texte ins Widget übertragen
+        document.getElementById('live-rec-container').innerText = txtRec;
+        document.getElementById('live-text-fortschritt').innerText = txtFortschritt;
+        document.getElementById('live-text-folge-label').innerText = txtFolgeLabel;
+        document.getElementById('live-label-quest').innerText = labelQuest;
+        document.getElementById('live-quest').innerText = questInput;
+        document.getElementById('live-label-kapitel').innerText = labelKapitel;
+        document.getElementById('live-kapitel-nr').innerText = kapitelNr;
+        document.getElementById('live-kapitel-name').innerText = kapitelName;
+        
+        document.getElementById('max-val').innerText = ziel;
+        document.getElementById('curr-val').innerText = stand;
+        document.getElementById('perc-val').innerText = percent;
+        document.getElementById('ep-num').innerText = stand;
+
+        // Ring Fortschritt
+        const circumference = 2 * Math.PI * 90;
+        const offset = circumference - (Math.min(percent, 100) / 100 * circumference);
+        document.getElementById('progress').style.strokeDashoffset = offset;
+
+        synchronizeAttributes();
+        updateTimerCircle();
+
+        // LocalStorage Speicherung
+        localStorage.setItem('widget_v3_stand', stand);
+        localStorage.setItem('widget_v3_ziel', ziel);
+        localStorage.setItem('widget_v3_label_quest', labelQuest);
+        localStorage.setItem('widget_v3_quest', questInput);
+        localStorage.setItem('widget_v3_label_kapitel', labelKapitel);
+        localStorage.setItem('widget_v3_kapitel_nr', kapitelNr);
+        localStorage.setItem('widget_v3_kapitel_name', kapitelName);
+        localStorage.setItem('widget_v3_dauer', dauer);
+        localStorage.setItem('widget_v3_text_rec', txtRec);
+        localStorage.setItem('widget_v3_text_fortschritt', txtFortschritt);
+        localStorage.setItem('widget_v3_text_folge-label', txtFolgeLabel);
+        localStorage.setItem('widget_v3_color_neon', colNeon);
+        localStorage.setItem('widget_v3_color_progress', colProgress);
+        localStorage.setItem('widget_v3_color_timer', colTimer);
+        localStorage.setItem('widget_v3_col_rec', cRec);
+        localStorage.setItem('widget_v3_col_lbl_fort', cLblFort);
+        localStorage.setItem('widget_v3_col_wrt_fort', cWrtFort);
+        localStorage.setItem('widget_v3_col_proz', cProz);
+        localStorage.setItem('widget_v3_col_lbl_qst', cLblQst);
+        localStorage.setItem('widget_v3_col_wrt_qst', cWrtQst);
+        localStorage.setItem('widget_v3_col_lbl_flg', cLblFlg);
+        localStorage.setItem('widget_v3_col_wrt_flg', cWrtFlg);
+        localStorage.setItem('widget_v3_col_lbl_kap', cLblKap);
+        localStorage.setItem('widget_v3_col_wrt_kap', cWrtKap);
+    }
+
+    // TIMER LOGIK
+    function initTimer() {
+        const dauerMinuten = parseInt(document.getElementById('input-dauer').value) || 31;
+        const savedTime = localStorage.getItem('widget_v3_timer_seconds');
+        secondsLeft = (savedTime !== null && parseInt(savedTime) > 0) ? parseInt(savedTime) : dauerMinuten * 60;
+
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(tick, 1000);
+        updateButtonUI();
+        updateTimerDisplay();
+    }
+
+    function toggleTimer() {
+        isTimerRunning = !isTimerRunning;
+        localStorage.setItem('widget_v3_timer_running', isTimerRunning);
+        updateButtonUI();
+        updateTimerDisplay();
+    }
+
+    function updateButtonUI() {
+        const btn = document.getElementById('btn-toggle-timer');
+        if (btn) {
+            btn.innerText = isTimerRunning ? "Pause" : "Start";
+            if (isTimerRunning) btn.classList.remove('paused');
+            else btn.classList.add('paused');
+        }
+    }
+
+    function resetTimerOnInput() {
+        const dauerMinuten = parseInt(document.getElementById('input-dauer').value) || 31;
+        secondsLeft = dauerMinuten * 60;
+        localStorage.setItem('widget_v3_timer_seconds', secondsLeft);
+        updateLive();
+        updateTimerDisplay();
+    }
+
+    function tick() {
+        if (!isTimerRunning) return;
+        if (secondsLeft > 0) {
+            secondsLeft--;
+            localStorage.setItem('widget_v3_timer_seconds', secondsLeft);
+            updateTimerDisplay();
+            updateTimerCircle();
+        } else {
+            let s = document.getElementById('input-stand');
+            s.value = parseInt(s.value) + 1;
+            resetTimerOnInput();
+        }
+    }
+
+    function updateTimerDisplay() {
+        const display = document.getElementById('timer-display');
+        if (!display) return;
+        const mins = Math.floor(secondsLeft / 60);
+        const secs = secondsLeft % 60;
+        display.innerText = `${isTimerRunning ? 'Restzeit bis Wechsel' : 'Wechsel pausiert bei'}: ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    document.getElementById('input-dauer').addEventListener('input', () => {
+        const cTimer = document.getElementById('input-color-timer').value;
+        document.getElementById('timer-display').style.color = isTimerRunning ? cTimer : "#e74c3c";
+    });
+
+    function updateTimerCircle() {
+        const dauerMinuten = parseInt(document.getElementById('input-dauer').value) || 31;
+        const totalSeconds = dauerMinuten * 60;
+        const circumference = 2 * Math.PI * 75; 
+        if(totalSeconds > 0) {
+            const offset = circumference - ((secondsLeft / totalSeconds) * circumference);
+            document.getElementById('timer-progress').style.strokeDashoffset = offset;
+        }
+    }
+
+    // HOTKEYS LOGIK
+    document.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT' && !e.target.classList.contains('hotkey-input')) return;
+
+        const key = e.key.toLowerCase();
+        if (key === hotkeyPause) {
+            e.preventDefault();
+            toggleTimer();
+        } else if (key === hotkeyReset) {
+            e.preventDefault();
+            resetTimerOnInput();
+        } else if (key === '+' || key === '=') {
+            let s = document.getElementById('input-stand');
+            s.value = parseInt(s.value) + 1;
+            updateLive();
+        } else if (key === '-' || key === '_') {
+            let s = document.getElementById('input-stand');
+            s.value = Math.max(0, parseInt(s.value) - 1);
+            updateLive();
+        }
+    });
+</script>
+
+</body>
+</html>
