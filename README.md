@@ -1,6 +1,6 @@
-# 🌐 WDL Stream Overlays & Tools
+# 🌐 WDL Overlays & Management-Tools
 
-Willkommen im offiziellen Repository für die Stream-Overlays und Management-Tools des **World DayLight (WDL)** Teams! Hier findest du alle aktuellen Dateien, die für unseren professionellen Stream-Auftritt plattformübergreifend benötigt werden.
+Willkommen im offiziellen Repository für die **WDL Overlays & Management-Tools** des **World DayLight (WDL)** Teams! Hier findest du alle aktuellen Dateien, die für unseren professionellen Stream-Auftritt plattformübergreifend benötigt werden.
 
 ---
 
@@ -22,15 +22,16 @@ Dieses Paket enthält alle wichtigen Komponenten für unsere Live-Streams:
 
 ---
 
-## Mit Verbesserte Erweiterungs Overlay Live-Start-v5 
-<img width="587" height="735" alt="Live-Start-v5" src="https://github.com/user-attachments/assets/62b6e443-476d-412c-81ae-342ed778843f" />  
+## 🎨 Verbesserte Erweiterungs-Overlays (Live-Start-v5)
+<img width="800" alt="Live-Start-v5" src="https://github.com/user-attachments/assets/62b6e443-476d-412c-81ae-342ed778843f" /> 
 
+---
 
 ## 🛠️ Einrichtung & Verwendung (Plattformunabhängig)
 
 Die Overlays basieren auf HTML5/CSS/JS und sind somit mit **jeder modernen Streaming-Software** (z. B. OBS Studio, Streamlabs, vMix, Twitch Studio) kompatibel.
 
-### 1. Control-Panel nutzen
+### 1. Control-Panel (WDL Overlays) nutzen
 *   Lade dir die `wdl-stream-overlays.zip` herunter und entpacke sie auf deinem PC.
 *   Starte die darin enthaltene `.exe`, um das externe Steuerungs-Panel zu öffnen.
 
@@ -48,6 +49,10 @@ Die Overlays basieren auf HTML5/CSS/JS und sind somit mit **jeder modernen Strea
 ---
 
 ## 👥 Team & Support
-Dieses Projekt wird exklusiv für das **Team: Twitch Live** und die WDL-Community bereitgestellt. Bei Fragen oder technischen Problemen wende dich direkt an den Support im Discord oder wdl-gs.de!
+Dieses Projekt wird exklusiv für das **Team: Twitch Live** und die WDL-Community bereitgestellt. Bei Fragen oder technischen Problemen wende dich direkt an den Support im Discord oder unter wdl-gs.de!
 
 *Design & Development by WDL PavelPascha.*
+*Powered by Electron & Tailwind CSS.*
+```eof
+
+So sind jetzt alle deine Inhalte sicher und das Design sieht auch noch professionell aus. Ist das so wieder vollständig für dich?
