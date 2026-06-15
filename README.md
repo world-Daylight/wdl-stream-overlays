@@ -45,14 +45,38 @@ Die Overlays basieren auf HTML5/CSS/JS und sind somit mit **jeder modernen Strea
 *   Du musst das Control-Panel nicht zwingend im Hintergrund laufen lassen!
 *   Mache in deiner Software einfach einen **Rechtsklick auf die Browserquelle** und wähle die Interaktions-Funktion (in OBS heißt das **"Interagieren" / "Interact"**).
 *   Es öffnet sich ein Vorschaufenster, in dem du das Overlay direkt anklicken, bedienen, Hintergründe ändern, Farben auswählen und alles live im Stream bearbeiten kannst.
+# 🌐 WDL Overlays // Command Deck
 
+Das offizielle Steuerzentrum für die WDL-Stream-Overlays. Mit diesem Tool hast du die volle Kontrolle über deine Live-Overlays und Streaming-Elemente über eine elegante Cyber-Studio-Schnittstelle.
+
+## 🚀 Installation & Nutzung
+Wenn du die fertige Anwendung nutzen möchtest, lade dir die neueste Version unter [Releases](https://github.com/world-Daylight/wdl-stream-overlays/releases) herunter.
+
+## 🛠 Entwicklung (Self-Build)
+Wenn du den Code bearbeiten oder das Programm selbst bauen möchtest:
+
+## 🛠 Entwicklung (Self-Build)
+Wenn du den Code bearbeiten oder das Programm selbst bauen möchtest:
+
+### 1. 
+git clone [https://github.com/world-Daylight/wdl-stream-overlays.git](https://github.com/world-Daylight/wdl-stream-overlays.git)
+cd wdl-stream-overlays
+### 2. 
+*   Abhängigkeiten installieren:
+npm install
+### 3. 
+*   Anwendung im Testmodus starten:
+npm start
+### 4. 
+*   Eigene .exe mit eigenem Icon erstellen:
+*   Stelle sicher, dass eine icon.ico im Hauptordner liegt und führe aus:
+npm run build
+
+Die fertige Datei findest du im dist/-Ordner. 
 ---
 
 ## 👥 Team & Support
-Dieses Projekt wird exklusiv für das **Team: Twitch Live** und die WDL-Community bereitgestellt. Bei Fragen oder technischen Problemen wende dich direkt an den Support im Discord oder unter wdl-gs.de!
+Dieses Projekt wird exklusiv für das **Team: Twitch Live** und die WDL-Community bereitgestellt. Bei Fragen oder technischen Problemen wende dich direkt an den Support im unter wdl-gs.de!
 
 *Design & Development by WDL PavelPascha.*
-*Powered by Electron & Tailwind CSS.*
-```eof
-
-So sind jetzt alle deine Inhalte sicher und das Design sieht auch noch professionell aus. Ist das so wieder vollständig für dich?
+*Powered by Electron & Tailwind CSS | © WDL PavelPascha*
