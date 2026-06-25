@@ -29,7 +29,7 @@ Dieses Paket enthält alle wichtigen Komponenten für unsere Live-Streams:
 
 ## 🛠️ Einrichtung & Verwendung (Plattformunabhängig)
 
-Die Overlays basieren auf HTML5/CSS/JS und sind somit mit **jeder modernen Streaming-Software** (z. B. OBS Studio, Streamlabs, vMix, Twitch Studio) kompatibel.
+Die Overlays basieren auf standardisierten Web-Technologien (HTML5, CSS & JS) und lassen sich daher in allen gängigen Streaming- und Aufnahmeprogrammen problemlos einbinden, die Browser-Quellen unterstützen (z. B. OBS Studio, Streamlabs, vMix oder Twitch Studio).
 
 ### 1. Control-Panel (WDL Overlays) nutzen
 *   Lade dir die `wdl-stream-overlays.zip` herunter und entpacke sie auf deinem PC.
