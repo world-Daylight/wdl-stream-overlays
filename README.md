@@ -34,7 +34,7 @@ Die Overlays basieren auf HTML5/CSS/JS und sind somit mit **jeder modernen Strea
 ### 1. Control-Panel (WDL Overlays) nutzen
 *   Lade dir die `wdl-stream-overlays.zip` herunter und entpacke sie auf deinem PC.
 *   Starte die darin enthaltene `.exe`, um das externe Steuerungs-Panel zu öffnen.
-
+*  Die EXE habe ich erstmal hier raus gelöscht weil man das noch nicht komplett fertigt habe.
 ### 2. Overlays in deiner Streaming-Software einbinden
 *   Füge in deiner Streaming-Software eine neue **Browserquelle** (Browser Source) hinzu.
 *   Aktiviere die Option für **"Lokale Datei"** (Local file).
