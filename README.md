@@ -4,6 +4,13 @@ Willkommen im offiziellen Repository für die **WDL Overlays & Management-Tools*
 
 ---
 
+### 🚀 Changelog – `notification-v5.html` (v5.0 Edition)
+
+- **Hotkey-Steuerung:** Interaktive Tastenbelegung für das manuelle Triggern von Alerts während des Streams.
+- **Timer & Reset:** Dynamisches Zurücksetzen und Pausieren von Benachrichtigungen über Steuerbefehle.
+- **Speicher-Modul:** Integrierte Speicherung der Benachrichtigungseinstellungen im lokalen Browser-Speicher (`localStorage`).
+- **OBS-Performance:** Reines CSS3 & Vanilla JavaScript für minimalen CPU-Verbrauch im Stream-Layout.
+
 ## 🚀 Inhalt & Funktionen des Repositories
 
 Dieses Paket enthält alle wichtigen Komponenten für unsere Live-Streams:
